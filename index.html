@@ -32,16 +32,56 @@
       <p>在艾瑟瑞亞大陸，寫下屬於你的傳奇。</p>
     </section>
 
-    <section id="classes">
-      <p class="eyebrow">CHOOSE YOUR FATE</p>
-      <h2>選擇你的職業</h2>
-      <div class="classes">
-        <button data-class="騎士">聖殿騎士</button>
-        <button data-class="刺客">暗影刺客</button>
-        <button data-class="法師">符文法師</button>
-      </div>
-      <p id="class-description">選擇職業，開始你的冒險。</p>
-    </section>
+ 
+<section id="classes">
+  <p class="eyebrow">CHOOSE YOUR FATE</p>
+  <h2>選擇你的職業</h2>
+  <p>命運由你選擇，傳奇由你書寫。</p>
+
+  <div class="class-selector">
+    <button class="class-option active" data-class="knight">
+      <span class="class-number">I</span>
+      <span>聖殿騎士</span>
+      <small>THE TEMPLAR</small>
+    </button>
+
+    <button class="class-option" data-class="assassin">
+      <span class="class-number">II</span>
+      <span>暗影刺客</span>
+      <small>THE ASSASSIN</small>
+    </button>
+
+    <button class="class-option" data-class="mage">
+      <span class="class-number">III</span>
+      <span>符文法師</span>
+      <small>THE ARCANIST</small>
+    </button>
+  </div>
+
+  <div class="class-showcase" id="class-showcase">
+    <div class="class-art knight-art" id="class-art"
+         role="img" aria-label="聖殿騎士角色主視覺">
+    </div>
+
+    <div class="class-info">
+      <p class="eyebrow" id="class-role">近戰防禦・團隊守護</p>
+      <h3 id="class-name">聖殿騎士</h3>
+      <p id="class-description">
+        以鋼鐵意志與古老聖印守護盟友，在黑暗吞噬世界之前，成為最後一道防線。
+      </p>
+
+      <h4>戰鬥特色</h4>
+      <ul id="class-skills">
+        <li>聖光壁壘｜抵擋敵方攻勢</li>
+        <li>裁決重擊｜對敵人施展強力近戰攻擊</li>
+        <li>守護誓約｜強化守護者的戰鬥意志</li>
+      </ul>
+
+      <p class="class-note">職業技能為網站展示設定，非實際遊戲功能。</p>
+    </div>
+  </div>
+</section>
+
 
     <section id="news">
       <p class="eyebrow">CHRONICLES</p>
