@@ -1258,3 +1258,90 @@ footer p {
     min-height: 350px;
   }
 }
+
+/* ===== iPad 與手機版排版修正 ===== */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+img {
+  max-width: 100%;
+}
+
+.class-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+#class-art {
+  width: 100%;
+  min-width: 0;
+  min-height: 380px;
+  background-position: center;
+  background-size: cover;
+}
+
+.class-info {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.class-info p,
+.class-info h3,
+.class-info h4 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+header nav,
+.navbar,
+.nav-container {
+  width: min(1200px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.nav-links,
+.nav-menu,
+nav ul {
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+@media (max-width: 900px) {
+  .class-showcase {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  #class-art {
+    min-height: 420px;
+  }
+
+  .class-info {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  #class-art {
+    min-height: 320px;
+  }
+
+  .class-info {
+    padding: 18px;
+  }
+
+  .nav-links,
+  .nav-menu,
+  nav ul {
+    justify-content: flex-start;
+  }
+}
