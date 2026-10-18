@@ -1,82 +1,89 @@
+
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ==============================
-  // 1. 魔幻進場動畫
-  // ==============================
-  const intro = document.getElementById("intro-screen");
-  const introSkip = document.getElementById("intro-skip");
-  const introLoading = document.getElementById("intro-loading");
-  const reducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) =>
+    Array.from(root.querySelectorAll(selector));
 
-  document.body.classList.add("intro-active");
+  /* =========================
+     共用提示訊息
+  ========================= */
 
-  let introTimer;
+  const toast = $("#site-toast");
+  let toastTimer;
 
-  function finishIntro() {
-    if (!intro || intro.classList.contains("is-finished")) return;
+  function showToast(message) {
+    if (!toast) return;
 
-    intro.classList.add("is-finished");
+    toast.textContent = message;
+    toast.classList.add("is-visible");
+
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast.classList.remove("is-visible");
+    }, 3000);
+  }
+
+  /* =========================
+     進場畫面
+  ========================= */
+
+  const intro = $("#intro-screen");
+  const introEnter = $("#intro-enter");
+  let introClosed = false;
+
+  function closeIntro() {
+    if (!intro || introClosed) return;
+
+    introClosed = true;
+    intro.classList.add("is-hidden");
     document.body.classList.remove("intro-active");
 
-    if (introTimer) {
-      clearTimeout(introTimer);
+    window.setTimeout(() => {
+      intro.hidden = true;
+    }, 850);
+  }
+
+  if (intro && !intro.classList.contains("is-hidden")) {
+    document.body.classList.add("intro-active");
+
+    if (introEnter) {
+      introEnter.addEventListener("click", closeIntro);
     }
 
-    window.setTimeout(() => {
-      intro.remove();
-    }, 900);
+    // 不要求訪客一定要按按鈕，避免進場畫面阻擋網站內容。
+    window.setTimeout(closeIntro, 4500);
   }
 
-  if (introLoading) {
-    introLoading.textContent = "正在喚醒永夜之力……";
-  }
+  /* =========================
+     手機導覽選單
+  ========================= */
 
-  if (introSkip) {
-    introSkip.addEventListener("click", finishIntro);
-  }
+  const menuToggle = $("#menu-toggle");
+  const mainNav = $("#main-nav");
 
-  if (reducedMotion) {
-    finishIntro();
-  } else {
-    introTimer = window.setTimeout(finishIntro, 2400);
-  }
-
-  // ==============================
-  // 2. 手機導覽選單
-  // ==============================
-  const menuToggle = document.getElementById("menu-toggle");
-  const mainNav = document.getElementById("main-nav");
-
-  function closeMenu() {
+  function setMenuOpen(open) {
     if (!menuToggle || !mainNav) return;
 
-    menuToggle.setAttribute("aria-expanded", "false");
-    menuToggle.setAttribute("aria-label", "開啟導覽選單");
-    mainNav.classList.remove("is-open");
+    menuToggle.setAttribute("aria-expanded", String(open));
+    menuToggle.setAttribute(
+      "aria-label",
+      open ? "關閉導覽選單" : "開啟導覽選單"
+    );
+
+    mainNav.classList.toggle("is-open", open);
+    document.body.classList.toggle("menu-open", open);
   }
 
   if (menuToggle && mainNav) {
     menuToggle.addEventListener("click", () => {
-      const isOpen =
-        menuToggle.getAttribute("aria-expanded") === "true";
-
-      menuToggle.setAttribute("aria-expanded", String(!isOpen));
-      menuToggle.setAttribute(
-        "aria-label",
-        isOpen ? "開啟導覽選單" : "關閉導覽選單"
-      );
-      mainNav.classList.toggle("is-open", !isOpen);
+      const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
+      setMenuOpen(!isOpen);
     });
 
-    mainNav.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", closeMenu);
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeMenu();
+    $$("#main-nav a").forEach((link) => {
+      link.addEventListener("click", () => setMenuOpen(false));
     });
 
     document.addEventListener("click", (event) => {
@@ -85,226 +92,297 @@ document.addEventListener("DOMContentLoaded", () => {
         !mainNav.contains(event.target) &&
         !menuToggle.contains(event.target)
       ) {
-        closeMenu();
+        setMenuOpen(false);
       }
     });
 
     window.addEventListener("resize", () => {
-      if (window.innerWidth > 700) closeMenu();
+      if (window.innerWidth > 760) {
+        setMenuOpen(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
     });
   }
 
-  // ==============================
-  // 3. 職業切換
-  // 保留原本三張職業圖片路徑
-  // ==============================
-  const classes = {
+  /* =========================
+     職業資料與切換
+  ========================= */
+
+  const classData = {
     knight: {
-      name: "神聖騎士",
-      subtitle: "以誓約守護最後的光",
-      number: "CLASS 01 / FRONTLINE",
-      label: "ORDER OF LIGHT",
+      number: "01",
+      name: "聖殿騎士",
+      english: "TEMPLE KNIGHT",
+      subtitle: "HOLY GUARDIAN",
       image: "assets/images/knight.jpg",
-      alt: "神聖騎士職業形象",
+      alt: "聖殿騎士職業圖片",
       description:
-        "身披古老誓約的重裝戰士，以堅不可摧的防禦守護同伴，並以聖光之力制裁黑暗。",
-      attack: 80,
-      defense: 95,
-      speed: 55,
-      magic: 65,
-      skills: ["聖光裁決", "神聖壁壘", "王者誓約"]
+        "身披古老誓約的重裝戰士，以堅定意志守護同伴，在黑暗最深處築起不可撼動的防線。",
+      stats: {
+        attack: 75,
+        defense: 95,
+        speed: 55,
+        magic: 45
+      },
+      skills: ["神聖壁壘", "守護誓約", "制裁重擊"]
     },
 
     assassin: {
+      number: "02",
       name: "暗影刺客",
-      subtitle: "在黑暗中決定勝負",
-      number: "CLASS 02 / ASSASSIN",
-      label: "VEIL OF SHADOW",
+      english: "SHADOW ASSASSIN",
+      subtitle: "BLADE OF SHADOWS",
       image: "assets/images/assassin.jpg",
-      alt: "暗影刺客職業形象",
+      alt: "暗影刺客職業圖片",
       description:
-        "穿梭於陰影之間的迅捷獵手，擅長突襲、連擊與精準打擊，在敵人察覺之前結束戰鬥。",
-      attack: 90,
-      defense: 55,
-      speed: 100,
-      magic: 45,
-      skills: ["影襲", "幻影步", "致命標記"]
+        "行走於光影交界的迅捷獵手，以敏捷身法和精準攻擊掌握戰局，在敵人察覺之前決定勝負。",
+      stats: {
+        attack: 92,
+        defense: 48,
+        speed: 98,
+        magic: 42
+      },
+      skills: ["瞬影突襲", "致命標記", "暗幕遁形"]
     },
 
     mage: {
-      name: "秘法法師",
-      subtitle: "以禁忌秘法改寫戰場",
-      number: "CLASS 03 / SPELLCASTER",
-      label: "ARCANE AWAKENING",
+      number: "03",
+      name: "符文法師",
+      english: "RUNE MAGE",
+      subtitle: "KEEPER OF ARCANE",
       image: "assets/images/mage.jpg",
-      alt: "秘法法師職業形象",
+      alt: "符文法師職業圖片",
       description:
-        "研習古代秘法的施術者，能引導元素與奧術能量，以強大的魔法掌控戰場。",
-      attack: 95,
-      defense: 45,
-      speed: 60,
-      magic: 100,
-      skills: ["星隕術", "秘法屏障", "虛空洪流"]
+        "研習古代符文與失落秘術的施法者，能夠引導強大的魔法能量，以智慧與元素之力扭轉戰場。",
+      stats: {
+        attack: 94,
+        defense: 40,
+        speed: 60,
+        magic: 100
+      },
+      skills: ["星隕術式", "永夜結界", "奧術共鳴"]
     }
   };
 
-  const classTabs = document.querySelectorAll(".class-tab");
-  const classArt = document.getElementById("class-art");
+  const classOrder = ["knight", "assassin", "mage"];
+  let currentClass = "knight";
 
-  function updateText(id, value) {
-    const element = document.getElementById(id);
-    if (element) element.textContent = value;
+  const classArt = $("#class-art");
+  const classNumber = $("#class-number");
+  const className = $("#class-name");
+  const classEnglish = $("#class-english");
+  const classSubtitle = $("#class-subtitle");
+  const classDescription = $("#class-description");
+  const classSkills = $("#class-skills");
+
+  function updateClassStats(stats) {
+    const statElements = {
+      attack: $("#stat-attack"),
+      defense: $("#stat-defense"),
+      speed: $("#stat-speed"),
+      magic: $("#stat-magic")
+    };
+
+    Object.entries(statElements).forEach(([key, element]) => {
+      if (!element) return;
+
+      const value = Math.max(0, Math.min(100, Number(stats[key]) || 0));
+      element.style.width = `${value}%`;
+      element.setAttribute("aria-label", `${key}: ${value}%`);
+    });
   }
 
-  function setStat(id, valueId, value) {
-    const bar = document.getElementById(id);
-    const number = document.getElementById(valueId);
+  function selectClass(classKey) {
+    const data = classData[classKey];
+    if (!data) return;
 
-    if (bar) {
-      bar.style.width = `${value}%`;
-    }
+    currentClass = classKey;
 
-    if (number) {
-      number.textContent = String(value);
-    }
-  }
+    $$(".class-tab").forEach((button) => {
+      const active = button.dataset.class === classKey;
 
-  function selectClass(classId) {
-    const selected = classes[classId];
-    if (!selected) return;
-
-    classTabs.forEach((tab) => {
-      const active = tab.dataset.class === classId;
-      tab.classList.toggle("is-active", active);
-      tab.setAttribute("aria-pressed", String(active));
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
     });
 
-    if (classArt) {
-      classArt.style.opacity = "0";
+    if (classNumber) classNumber.textContent = data.number;
+    if (className) className.textContent = data.name;
+    if (classEnglish) classEnglish.textContent = data.english;
+    if (classSubtitle) classSubtitle.textContent = data.subtitle;
+    if (classDescription) classDescription.textContent = data.description;
 
+    if (classArt) {
+      classArt.classList.add("is-changing");
+
+      const updateImage = () => {
+        classArt.src = data.image;
+        classArt.alt = data.alt;
+      };
+
+      // 等待短暫淡出，再切換圖片。
       window.setTimeout(() => {
-        classArt.src = selected.image;
-        classArt.alt = selected.alt;
-        classArt.style.opacity = "1";
-      }, 140);
+        updateImage();
+        classArt.classList.remove("is-changing");
+      }, 160);
+
+      classArt.onerror = () => {
+        classArt.classList.remove("is-changing");
+        showToast(`無法載入職業圖片：${data.image}，請檢查檔案名稱與路徑。`);
+      };
+
+      classArt.onload = () => {
+        classArt.classList.remove("is-changing");
+      };
     }
 
-    updateText("class-name", selected.name);
-    updateText("class-subtitle", selected.subtitle);
-    updateText("class-number", selected.number);
-    updateText("class-art-label", selected.label);
-    updateText("class-description", selected.description);
+    updateClassStats(data.stats);
 
-    setStat("stat-attack", "attack-value", selected.attack);
-    setStat("stat-defense", "defense-value", selected.defense);
-    setStat("stat-speed", "speed-value", selected.speed);
-    setStat("stat-magic", "magic-value", selected.magic);
+    if (classSkills) {
+      classSkills.replaceChildren();
 
-    const skillList = document.getElementById("skill-list");
-
-    if (skillList) {
-      skillList.replaceChildren();
-
-      selected.skills.forEach((skill) => {
-        const item = document.createElement("li");
-        item.textContent = skill;
-        skillList.appendChild(item);
+      data.skills.forEach((skill) => {
+        const tag = document.createElement("span");
+        tag.textContent = skill;
+        classSkills.appendChild(tag);
       });
     }
   }
 
-  classTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      selectClass(tab.dataset.class);
+  $$(".class-tab").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectClass(button.dataset.class);
     });
   });
 
-  // 圖片載入失敗時顯示提醒，不會自動換成錯誤的檔案
-  if (classArt) {
-    classArt.addEventListener("error", () => {
-      console.warn(
-        "職業圖片載入失敗，請確認檔案路徑與大小寫：",
-        classArt.getAttribute("src")
-      );
-    });
+  const prevClass = $("#class-prev");
+  const nextClass = $("#class-next");
+
+  function moveClass(direction) {
+    const currentIndex = classOrder.indexOf(currentClass);
+    const nextIndex =
+      (currentIndex + direction + classOrder.length) % classOrder.length;
+
+    selectClass(classOrder[nextIndex]);
   }
 
-  // ==============================
-  // 4. 世界地圖區域切換
-  // ==============================
-  const regions = {
+  if (prevClass) {
+    prevClass.addEventListener("click", () => moveClass(-1));
+  }
+
+  if (nextClass) {
+    nextClass.addEventListener("click", () => moveClass(1));
+  }
+
+  // 初始化第一個職業。
+  selectClass("knight");
+
+  /* =========================
+     世界地圖區域切換
+  ========================= */
+
+  const regionData = {
     capital: {
-      number: "REGION 01",
+      index: "REGION 01 / 04",
       name: "暮光王城",
+      english: "THE DUSK CAPITAL",
       description:
-        "古老王國的最後堡壘，殘存的聖火仍在高塔中閃耀。",
-      status: "探索區域"
+        "曾經繁盛的王國中心，如今仍有守衛與旅人試圖在漫長黑夜中維持秩序。這裡是旅程的起點，也是尋找線索的重要據點。",
+      type: "安全區域",
+      level: "初階冒險者"
     },
 
     forest: {
-      number: "REGION 02",
-      name: "迷霧森林",
+      index: "REGION 02 / 04",
+      name: "幽影森林",
+      english: "THE SHADOW FOREST",
       description:
-        "終年被濃霧籠罩的古老森林，沉睡的精靈遺跡隱藏其中。",
-      status: "未知領域"
+        "終年被濃霧籠罩的古老森林。扭曲的樹影間傳來奇異低語，失落的道路可能通往被遺忘的秘密。",
+      type: "探索區域",
+      level: "初階至中階"
+    },
+
+    ruins: {
+      index: "REGION 03 / 04",
+      name: "失落遺跡",
+      english: "THE FORGOTTEN RUINS",
+      description:
+        "沉睡在歷史深處的古代遺址，斷裂的石柱與殘缺符文記錄著永夜以前的文明。",
+      type: "遺跡區域",
+      level: "中階冒險者"
     },
 
     abyss: {
-      number: "REGION 03",
-      name: "深淵裂谷",
+      index: "REGION 04 / 04",
+      name: "深淵邊境",
+      english: "THE ABYSS FRONTIER",
       description:
-        "大地裂開後形成的禁忌之地，傳說深處封存著日蝕的真相。",
-      status: "危險區域"
+        "光明難以抵達的危險邊境。傳聞黑暗力量從此處蔓延，唯有準備充分的冒險者才敢深入。",
+      type: "高危險區域",
+      level: "高階冒險者"
     }
   };
 
-  const regionControls = document.querySelectorAll(
-    "[data-region]"
-  );
+  function selectRegion(regionKey) {
+    const data = regionData[regionKey];
+    if (!data) return;
 
-  function selectRegion(regionId) {
-    const region = regions[regionId];
-    if (!region) return;
+    const fields = {
+      "#region-index": data.index,
+      "#region-name": data.name,
+      "#region-english": data.english,
+      "#region-description": data.description,
+      "#region-type": data.type,
+      "#region-level": data.level
+    };
 
-    updateText("region-number", region.number);
-    updateText("region-name", region.name);
-    updateText("region-description", region.description);
-    updateText("region-status", region.status);
-
-    document.querySelectorAll(".map-pin").forEach((pin) => {
-      pin.classList.toggle(
-        "is-selected",
-        pin.dataset.region === regionId
-      );
+    Object.entries(fields).forEach(([selector, value]) => {
+      const element = $(selector);
+      if (element) element.textContent = value;
     });
 
-    document.querySelectorAll(".region-button").forEach((button) => {
-      button.classList.toggle(
-        "is-active",
-        button.dataset.region === regionId
-      );
+    $$("[data-region]").forEach((button) => {
+      const active = button.dataset.region === regionKey;
+
+      if (
+        button.classList.contains("map-pin") ||
+        button.classList.contains("region-option")
+      ) {
+        button.classList.toggle("is-active", active);
+      }
+
+      if (button.classList.contains("region-option")) {
+        button.setAttribute("aria-current", active ? "true" : "false");
+      }
     });
   }
 
-  regionControls.forEach((control) => {
-    control.addEventListener("click", () => {
-      selectRegion(control.dataset.region);
+  $$("[data-region]").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectRegion(button.dataset.region);
     });
   });
 
-  // ==============================
-  // 5. 滾動淡入動畫
-  // ==============================
-  const revealElements = document.querySelectorAll(".reveal");
+  selectRegion("capital");
 
-  if ("IntersectionObserver" in window && !reducedMotion) {
+  /* =========================
+     滾動淡入動畫
+  ========================= */
+
+  const revealElements = $$(".reveal");
+
+  if ("IntersectionObserver" in window) {
     const revealObserver = new IntersectionObserver(
       (entries, observer) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) return;
+
+          entry.target.classList.add("is-revealed");
+          observer.unobserve(entry.target);
         });
       },
       {
@@ -318,85 +396,87 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   } else {
     revealElements.forEach((element) => {
-      element.classList.add("is-visible");
+      element.classList.add("is-revealed");
     });
   }
 
-  // ==============================
-  // 6. 頁首效果、返回頂部與視差
-  // ==============================
-  const header = document.querySelector(".site-header");
-  const backToTop = document.getElementById("back-to-top");
-  const heroBackdrop = document.getElementById("hero-backdrop");
+  /* =========================
+     返回頂部
+  ========================= */
 
-  let ticking = false;
+  const backToTop = $("#back-to-top");
 
-  function updateScrollEffects() {
-    const scrollY = window.scrollY;
+  function updateBackToTop() {
+    if (!backToTop) return;
 
-    if (header) {
-      header.classList.toggle("is-scrolled", scrollY > 40);
-    }
-
-    if (backToTop) {
-      backToTop.classList.toggle("is-visible", scrollY > 500);
-    }
-
-    // 只對首頁背景做輕微位移，不影響其他區塊
-    if (
-      heroBackdrop &&
-      !reducedMotion &&
-      window.innerWidth > 700 &&
-      scrollY < window.innerHeight
-    ) {
-      heroBackdrop.style.transform =
-        `translate3d(0, ${scrollY * 0.12}px, 0)`;
-    }
-
-    ticking = false;
+    backToTop.classList.toggle("is-visible", window.scrollY > 450);
   }
 
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateScrollEffects);
-        ticking = true;
-      }
-    },
-    { passive: true }
-  );
-
-  updateScrollEffects();
+  window.addEventListener("scroll", updateBackToTop, { passive: true });
+  updateBackToTop();
 
   if (backToTop) {
     backToTop.addEventListener("click", () => {
       window.scrollTo({
         top: 0,
-        behavior: reducedMotion ? "auto" : "smooth"
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth"
       });
     });
   }
 
-  // ==============================
-  // 7. 背景音樂開關
-  // ==============================
-  const music = document.getElementById("bg-music");
-  const musicToggle = document.getElementById("music-toggle");
-  const musicLabel = document.getElementById("music-label");
+  /* =========================
+     導覽列目前區段提示
+  ========================= */
 
-  function updateMusicButton(isPlaying) {
-    if (!musicToggle) return;
+  const navLinks = $$(".main-nav a[href^='#']");
+  const navSections = navLinks
+    .map((link) => $(link.getAttribute("href")))
+    .filter(Boolean);
 
-    musicToggle.classList.toggle("is-playing", isPlaying);
-    musicToggle.setAttribute("aria-pressed", String(isPlaying));
-    musicToggle.setAttribute(
-      "aria-label",
-      isPlaying ? "關閉背景音樂" : "播放背景音樂"
+  if ("IntersectionObserver" in window && navSections.length) {
+    const navObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          navLinks.forEach((link) => {
+            const active = link.getAttribute("href") === `#${entry.target.id}`;
+            link.classList.toggle("is-current", active);
+
+            if (active) {
+              link.setAttribute("aria-current", "location");
+            } else {
+              link.removeAttribute("aria-current");
+            }
+          });
+        });
+      },
+      {
+        rootMargin: "-25% 0px -60% 0px",
+        threshold: 0
+      }
     );
 
+    navSections.forEach((section) => navObserver.observe(section));
+  }
+
+  /* =========================
+     背景音樂
+  ========================= */
+
+  const music = $("#bg-music");
+  const musicToggle = $("#music-toggle");
+  const musicLabel = $("#music-label");
+
+  function updateMusicButton(isPlaying) {
+    if (musicToggle) {
+      musicToggle.setAttribute("aria-pressed", String(isPlaying));
+    }
+
     if (musicLabel) {
-      musicLabel.textContent = isPlaying ? "音樂播放中" : "音樂關閉";
+      musicLabel.textContent = isPlaying ? "關閉音樂" : "播放音樂";
     }
   }
 
@@ -405,30 +485,52 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!music.paused) {
         music.pause();
         updateMusicButton(false);
+        showToast("背景音樂已暫停。");
         return;
       }
 
       try {
+        // 播放動作由訪客點擊觸發，符合瀏覽器自動播放限制。
         await music.play();
         updateMusicButton(true);
+        showToast("背景音樂播放中。");
       } catch (error) {
         updateMusicButton(false);
 
-        if (musicLabel) {
-          musicLabel.textContent = "請加入音樂檔";
+        if (error && error.name === "NotSupportedError") {
+          showToast("音樂檔案格式不支援，請檢查 theme.mp3。");
+        } else {
+          showToast("無法播放音樂，請確認 assets/audio/theme.mp3 是否存在。");
         }
-
-        console.warn(
-          "背景音樂無法播放。請確認 assets/audio/theme.mp3 存在且格式正確。",
-          error
-        );
       }
     });
 
     music.addEventListener("play", () => updateMusicButton(true));
     music.addEventListener("pause", () => updateMusicButton(false));
-    music.addEventListener("ended", () => updateMusicButton(false));
+    music.addEventListener("error", () => {
+      updateMusicButton(false);
+    });
   }
 
-  console.log("ECLIPSE ONLINE 官網互動功能已載入。");
+  /* =========================
+     頁尾年份
+  ========================= */
+
+  const currentYear = $("#current-year");
+
+  if (currentYear) {
+    currentYear.textContent = String(new Date().getFullYear());
+  }
+
+  /* =========================
+     鍵盤操作
+  ========================= */
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeIntro();
+    }
+  });
+
+  console.info("ECLIPSE ONLINE：網站互動功能已初始化。");
 });
