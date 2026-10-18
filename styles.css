@@ -776,4 +776,374 @@ a:focus-visible {
   display: inline-grid;
   width: 54px;
   height: 54px;
-  place-items
+  place-items: center;
+  margin-bottom: 22px;
+  border: 1px solid rgba(217, 185, 110, 0.4);
+  border-radius: 50%;
+  color: var(--gold-bright);
+  background: rgba(217, 185, 110, 0.06);
+  font-size: 1.55rem;
+  transition:
+    transform 0.35s var(--ease),
+    box-shadow 0.35s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: rotate(8deg) scale(1.08);
+  box-shadow: 0 0 24px rgba(217, 185, 110, 0.12);
+}
+
+.feature-card h3 {
+  margin: 0 0 12px;
+  color: #f0dfb3;
+  font-size: 1.12rem;
+}
+
+.feature-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 2;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+
+.site-footer {
+  padding: 45px 20px 30px;
+  border-top: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(48, 69, 112, 0.13), transparent 65%),
+    #05070d;
+  text-align: center;
+}
+
+.footer-brand {
+  display: inline-flex;
+  flex-direction: column;
+  color: var(--gold-bright);
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.footer-brand span {
+  margin-top: 2px;
+  color: #8996ac;
+  font-family: Georgia, serif;
+  font-size: 0.64rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+}
+
+.site-footer p {
+  margin: 15px 0 12px;
+  color: #bdc6d5;
+  font-size: 0.9rem;
+}
+
+.site-footer small {
+  color: #68758b;
+  font-size: 0.73rem;
+  letter-spacing: 0.06em;
+}
+
+/* ==========================================
+   動畫
+   ========================================== */
+
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes star-drift {
+  from {
+    background-position: 0 0, 0 0, 0 0, 0 0, center;
+  }
+
+  to {
+    background-position: 170px 170px, -230px 230px, 190px -190px, -260px 260px, center;
+  }
+}
+
+@keyframes hint-float {
+  0%, 100% {
+    transform: translate(-50%, 0);
+  }
+
+  50% {
+    transform: translate(-50%, 7px);
+  }
+}
+
+@keyframes rune-glow {
+  0%, 100% {
+    opacity: 0.75;
+    text-shadow: 0 0 20px rgba(131, 207, 255, 0.22);
+  }
+
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 25px rgba(131, 207, 255, 0.55),
+      0 0 45px rgba(217, 185, 110, 0.18);
+  }
+}
+
+/* ==========================================
+   iPad / 平板橫向與直向
+   ========================================== */
+
+@media (max-width: 1024px) {
+  .site-header {
+    gap: 18px;
+    padding-right: 4%;
+    padding-left: 4%;
+  }
+
+  .main-nav {
+    gap: 8px 20px;
+  }
+
+  .section {
+    padding: 82px 0;
+  }
+
+  .story-layout {
+    gap: 34px;
+  }
+
+  .story-art {
+    min-height: 340px;
+  }
+
+  .class-showcase {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+  }
+
+  .class-art-wrap,
+  .class-art {
+    min-height: 420px;
+  }
+
+  .class-details {
+    padding: 30px;
+  }
+
+  .feature-grid {
+    gap: 15px;
+  }
+
+  .feature-card {
+    padding: 28px 22px;
+  }
+}
+
+/* ==========================================
+   手機版導覽列與內容
+   ========================================== */
+
+@media (max-width: 700px) {
+  .site-header {
+    min-height: 70px;
+    padding: 10px 5%;
+  }
+
+  .brand-mark {
+    width: 39px;
+    height: 39px;
+    font-size: 1.3rem;
+  }
+
+  .brand strong {
+    font-size: 0.98rem;
+  }
+
+  .brand small {
+    font-size: 0.58rem;
+  }
+
+  .menu-toggle {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    font-size: 1.25rem;
+  }
+
+  .main-nav {
+    position: absolute;
+    top: calc(100% + 1px);
+    right: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 5% 16px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(5, 8, 15, 0.98);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  .main-nav.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .main-nav a {
+    padding: 12px 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  }
+
+  .main-nav a::after {
+    display: none;
+  }
+
+  .hero {
+    min-height: 590px;
+    padding: 75px 20px 100px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.7rem, 12vw, 4.4rem);
+    letter-spacing: 0.12em;
+    text-indent: 0.12em;
+  }
+
+  .hero-subtitle {
+    letter-spacing: 0.25em;
+    text-indent: 0.25em;
+  }
+
+  .hero-copy {
+    font-size: 0.92rem;
+  }
+
+  .section {
+    width: 90%;
+    padding: 66px 0;
+  }
+
+  .section-heading {
+    margin-bottom: 34px;
+  }
+
+  .section-heading h2 {
+    letter-spacing: 0.1em;
+  }
+
+  .story-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .story-art {
+    min-height: 270px;
+  }
+
+  .story-copy h3 {
+    font-size: 1.65rem;
+  }
+
+  .class-selector {
+    gap: 7px;
+    margin-bottom: 22px;
+  }
+
+  .class-tab {
+    min-height: 63px;
+    padding: 8px 4px;
+    font-size: 0.91rem;
+  }
+
+  .class-tab small {
+    font-size: 0.53rem;
+    letter-spacing: 0.08em;
+  }
+
+  .class-showcase {
+    grid-template-columns: 1fr;
+  }
+
+  .class-art-wrap,
+  .class-art {
+    min-height: 0;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .class-art {
+    object-fit: cover;
+    object-position: center 25%;
+  }
+
+  .class-details {
+    padding: 28px 23px 30px;
+  }
+
+  .class-details h3 {
+    font-size: 2rem;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .feature-card {
+    padding: 26px 24px;
+  }
+
+  .feature-icon {
+    margin-bottom: 14px;
+  }
+
+  .site-footer {
+    padding: 35px 18px 25px;
+  }
+}
+
+/* 小螢幕手機 */
+
+@media (max-width: 380px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .class-details {
+    padding: 23px 18px;
+  }
+
+  .class-tab {
+    font-size: 0.84rem;
+  }
+}
+
+/* 減少動態效果：尊重系統設定 */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
