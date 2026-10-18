@@ -1183,3 +1183,78 @@ footer p {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ===== 職業展示圖片 ===== */
+
+.class-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+  margin-top: 32px;
+}
+
+#class-art {
+  min-height: 420px;
+  background-color: #151116;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px solid #c9a96e66;
+}
+
+/* 聖殿騎士 */
+#class-art.knight-art {
+  background-image: url("assets/images/knight.jpg");
+}
+
+/* 暗影刺客 */
+#class-art.assassin-art {
+  background-image: url("assets/images/assassin.jpg");
+}
+
+/* 符文法師 */
+#class-art.mage-art {
+  background-image: url("assets/images/mage.jpg");
+}
+
+.class-info {
+  padding: 28px;
+  border: 1px solid #c9a96e35;
+  background: #151116;
+}
+
+.class-info h3 {
+  color: #e7d8bc;
+  font-size: 30px;
+}
+
+.class-info h4 {
+  margin-top: 24px;
+  color: #dfc18b;
+}
+
+#class-skills {
+  padding-left: 22px;
+  color: #c6bcba;
+}
+
+#class-skills li {
+  margin: 8px 0;
+}
+
+.class-note {
+  margin-top: 20px;
+  color: #8f8583;
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .class-showcase {
+    grid-template-columns: 1fr;
+  }
+
+  #class-art {
+    min-height: 350px;
+  }
+}
