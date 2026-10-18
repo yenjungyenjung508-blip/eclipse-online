@@ -1,8 +1,8 @@
-
 /* =========================================
    永夜紀元 ECLIPSE ONLINE
-   完整網站樣式表 styles.css
+   完整版 styles.css
    Dark Fantasy MMORPG
+   支援：桌機、iPad、iPhone、Android
 ========================================= */
 
 /* ---------- 1. 全域設定 ---------- */
@@ -28,36 +28,37 @@
 }
 
 html {
+  width: 100%;
+  max-width: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: 90px;
+  overflow-x: clip;
 }
 
 body {
-  font-family:
-    "Noto Sans TC",
-    "Microsoft JhengHei",
-    Arial,
-    sans-serif;
+  width: 100%;
+  max-width: 100%;
+  min-width: 320px;
+  overflow-x: clip;
   color: var(--text-main);
   background: var(--bg-main);
+  font-family: "Noto Sans TC", "Microsoft JhengHei",
+    Arial, sans-serif;
   line-height: 1.8;
-  overflow-x: hidden;
 }
 
 body,
 button,
 input,
 textarea {
-  font-family:
-    "Noto Sans TC",
-    "Microsoft JhengHei",
-    Arial,
-    sans-serif;
+  font-family: "Noto Sans TC", "Microsoft JhengHei",
+    Arial, sans-serif;
 }
 
 img {
   display: block;
   max-width: 100%;
+  height: auto;
 }
 
 a {
@@ -66,12 +67,23 @@ a {
 }
 
 button {
+  font: inherit;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+main,
+section,
+header,
+footer,
+.container,
+.section-container {
+  min-width: 0;
+  max-width: 100%;
 }
 
 section {
@@ -89,10 +101,10 @@ section {
   background: var(--gold);
 }
 
-/* ---------- 2. 共用文字樣式 ---------- */
+/* ---------- 2. 共用文字與區塊 ---------- */
 
 .section {
-  padding: 110px 0;
+  padding: 100px 0;
 }
 
 .section-label,
@@ -110,10 +122,11 @@ section {
   margin-bottom: 20px;
   color: var(--text-main);
   font-family: Georgia, "Noto Serif TC", serif;
-  font-size: clamp(30px, 4vw, 48px);
+  font-size: clamp(28px, 4vw, 48px);
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: 2px;
+  overflow-wrap: anywhere;
 }
 
 .section-description,
@@ -126,7 +139,7 @@ section {
 }
 
 .section-heading {
-  margin-bottom: 55px;
+  margin-bottom: 48px;
   text-align: center;
 }
 
@@ -136,6 +149,25 @@ section {
 
 .muted-text {
   color: var(--text-muted);
+}
+
+.gold-divider {
+  width: 70px;
+  height: 2px;
+  margin: 22px 0;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+.section-heading .gold-divider {
+  margin-inline: auto;
+}
+
+.glow-border {
+  box-shadow: 0 0 25px rgba(216, 184, 117, 0.08);
+}
+
+.hidden {
+  display: none !important;
 }
 
 /* ---------- 3. 導覽列 ---------- */
@@ -148,8 +180,16 @@ header {
   width: 100%;
   min-height: var(--header-height);
   border-bottom: 1px solid rgba(216, 184, 117, 0.16);
-  background: rgba(8, 10, 18, 0.94);
+  background: rgba(8, 10, 18, 0.96);
   backdrop-filter: blur(14px);
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 12px max(24px, calc((100% - 1200px) / 2));
 }
 
 .navbar,
@@ -186,22 +226,33 @@ header nav {
   letter-spacing: 3px;
 }
 
+.main-nav,
 .nav-links,
 .nav-menu,
 nav ul {
   display: flex;
   align-items: center;
-  gap: 28px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  min-width: 0;
   list-style: none;
 }
 
+.main-nav {
+  margin-left: auto;
+}
+
+.main-nav a,
 .nav-links a,
 .nav-menu a,
 nav ul a {
   position: relative;
+  display: inline-block;
   padding: 8px 0;
   color: #d3d5df;
   font-size: 13px;
+  white-space: nowrap;
   transition: color 0.25s ease;
 }
 
@@ -222,7 +273,8 @@ nav ul a::after {
 
 .nav-links a:hover,
 .nav-menu a:hover,
-nav ul a:hover {
+nav ul a:hover,
+.main-nav a:hover {
   color: var(--gold-light);
 }
 
@@ -230,6 +282,10 @@ nav ul a:hover {
 .nav-menu a:hover::after,
 nav ul a:hover::after {
   transform: scaleX(1);
+}
+
+.menu-toggle {
+  display: none;
 }
 
 /* ---------- 4. 共用按鈕 ---------- */
@@ -241,19 +297,17 @@ nav ul a:hover::after {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 12px 28px;
+  min-height: 46px;
+  max-width: 100%;
+  padding: 11px 24px;
   border: 1px solid var(--gold);
   border-radius: 3px;
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   text-align: center;
-  transition:
-    background 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease,
-    transform 0.25s ease;
+  transition: background 0.25s ease,
+    color 0.25s ease, transform 0.25s ease;
 }
 
 .btn-primary,
@@ -279,14 +333,13 @@ nav ul a:hover::after {
 .btn-outline:hover {
   color: #080a12;
   background: var(--gold);
-  transform: translateY(-2px);
 }
 
 .button-group,
 .hero-buttons {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
@@ -306,11 +359,7 @@ nav ul a:hover::after {
       rgba(5, 7, 14, 0.82) 45%,
       rgba(5, 7, 14, 0.28) 100%
     ),
-    linear-gradient(
-      0deg,
-      var(--bg-main) 0%,
-      transparent 35%
-    ),
+    linear-gradient(0deg, var(--bg-main), transparent 35%),
     url("assets/images/hero.jpg") center / cover no-repeat,
     #111627;
 }
@@ -319,12 +368,11 @@ nav ul a:hover::after {
   position: absolute;
   inset: 0;
   border-bottom: 1px solid var(--border-color);
-  background:
-    radial-gradient(
-      ellipse at 75% 35%,
-      rgba(121, 102, 190, 0.17),
-      transparent 45%
-    );
+  background: radial-gradient(
+    ellipse at 75% 35%,
+    rgba(121, 102, 190, 0.17),
+    transparent 45%
+  );
   content: "";
   pointer-events: none;
 }
@@ -344,7 +392,7 @@ nav ul a:hover::after {
 .hero .eyebrow {
   color: var(--gold-light);
   font-size: 12px;
-  letter-spacing: 5px;
+  letter-spacing: 4px;
 }
 
 .hero h1,
@@ -355,8 +403,9 @@ nav ul a:hover::after {
   font-size: clamp(42px, 7vw, 82px);
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: 5px;
+  letter-spacing: 4px;
   text-shadow: 0 5px 30px rgba(0, 0, 0, 0.6);
+  overflow-wrap: anywhere;
 }
 
 .hero h1 span,
@@ -376,7 +425,7 @@ nav ul a:hover::after {
 .hero-subtitle {
   color: var(--gold-light);
   font-size: 16px;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
 }
 
 /* ---------- 6. 世界觀與故事 ---------- */
@@ -397,22 +446,19 @@ nav ul a:hover::after {
 .story-grid,
 .world-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
-  gap: 64px;
+  gap: clamp(24px, 5vw, 64px);
 }
 
 .story-image,
 .world-image {
   position: relative;
-  min-height: 390px;
+  min-width: 0;
+  min-height: 360px;
   border: 1px solid var(--border-color);
   background:
-    linear-gradient(
-      0deg,
-      rgba(8, 10, 18, 0.3),
-      transparent
-    ),
+    linear-gradient(0deg, rgba(8, 10, 18, 0.3), transparent),
     url("assets/images/world.jpg") center / cover no-repeat,
     #171b2a;
 }
@@ -429,8 +475,9 @@ nav ul a:hover::after {
 .story-content h2,
 .world-content h2 {
   margin-bottom: 24px;
-  font-size: clamp(30px, 4vw, 44px);
+  font-size: clamp(28px, 4vw, 44px);
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .story-content p,
@@ -441,12 +488,12 @@ nav ul a:hover::after {
   line-height: 2.2;
 }
 
-/* ---------- 7. 職業選擇區 ---------- */
+/* ---------- 7. 職業區域 ---------- */
 
 .classes-section,
 .class-section,
 #classes {
-  padding: 110px 0;
+  padding: 100px 0;
   background:
     radial-gradient(
       ellipse at 50% 0%,
@@ -464,8 +511,6 @@ nav ul a:hover::after {
   gap: 24px;
 }
 
-/* 職業卡片 */
-
 .class-card,
 .job-card {
   position: relative;
@@ -473,34 +518,30 @@ nav ul a:hover::after {
   overflow: hidden;
   border: 1px solid rgba(216, 184, 117, 0.2);
   background: var(--bg-card);
-  transition:
-    border-color 0.3s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: border-color 0.3s ease,
+    transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .class-card:hover,
 .job-card:hover {
   border-color: var(--gold);
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
-  transform: translateY(-7px);
+  transform: translateY(-5px);
 }
 
-/* 職業圖片容器 */
+/* 職業圖片 */
 
 .class-art {
   position: relative;
   width: 100%;
   height: 430px;
-  min-height: 320px;
+  min-height: 280px;
   overflow: hidden;
   background-color: #151a29;
   background-position: center top;
   background-repeat: no-repeat;
   background-size: cover;
 }
-
-/* 騎士圖片 */
 
 .class-art-knight {
   background-image:
@@ -512,8 +553,6 @@ nav ul a:hover::after {
     url("assets/images/knight.jpg");
 }
 
-/* 刺客圖片 */
-
 .class-art-assassin {
   background-image:
     linear-gradient(
@@ -524,8 +563,6 @@ nav ul a:hover::after {
     url("assets/images/assassin.jpg");
 }
 
-/* 法師圖片 */
-
 .class-art-mage {
   background-image:
     linear-gradient(
@@ -535,8 +572,6 @@ nav ul a:hover::after {
     ),
     url("assets/images/mage.jpg");
 }
-
-/* 若 HTML 使用 img 顯示職業圖片，也能正常呈現 */
 
 .class-art img,
 .class-image img,
@@ -550,798 +585,12 @@ nav ul a:hover::after {
 
 .class-card:hover .class-art img,
 .job-card:hover .class-image img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
-
-/* 圖片漸層 */
 
 .class-art::after {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     0deg,
-    rgba(8, 10, 18, 0.75) 0%,
-    rgba(8, 10, 18, 0.05) 65%,
-    transparent 100%
-  );
-  content: "";
-  pointer-events: none;
-}
-
-/* 職業文字 */
-
-.class-info,
-.class-card-content,
-.job-info {
-  position: relative;
-  padding: 28px;
-}
-
-.class-name,
-.class-info h3,
-.class-card h3,
-.job-info h3 {
-  margin-bottom: 10px;
-  color: var(--gold-light);
-  font-family: Georgia, "Noto Serif TC", serif;
-  font-size: 25px;
-  letter-spacing: 2px;
-}
-
-.class-en-name {
-  display: block;
-  margin-bottom: 16px;
-  color: var(--text-muted);
-  font-size: 10px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.class-info p,
-.class-card-content p,
-.job-info p {
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 2;
-}
-
-.class-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 18px 0;
-}
-
-.class-tags span,
-.class-tag {
-  padding: 4px 10px;
-  border: 1px solid var(--border-color);
-  color: var(--gold-light);
-  font-size: 11px;
-}
-
-.class-select-btn {
-  width: 100%;
-  margin-top: 18px;
-}
-
-/* ---------- 8. 職業詳情與技能 ---------- */
-
-.class-details,
-.class-detail-section,
-#class-details {
-  padding: 90px 0;
-  background: #0e1220;
-}
-
-.class-detail-content {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: 48px;
-  align-items: start;
-}
-
-.class-detail-image {
-  min-height: 420px;
-  border: 1px solid var(--border-color);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
-.skill-section {
-  margin-top: 28px;
-}
-
-.skill-list,
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 22px;
-}
-
-.skill-item,
-.skill-card {
-  padding: 20px;
-  border: 1px solid rgba(216, 184, 117, 0.18);
-  background: rgba(255, 255, 255, 0.025);
-  transition:
-    border-color 0.25s ease,
-    background 0.25s ease;
-}
-
-.skill-item:hover,
-.skill-card:hover {
-  border-color: var(--gold);
-  background: rgba(216, 184, 117, 0.06);
-}
-
-.skill-item h4,
-.skill-card h4 {
-  margin-bottom: 8px;
-  color: var(--gold-light);
-  font-size: 15px;
-}
-
-.skill-item p,
-.skill-card p {
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.9;
-}
-
-/* 技能切換按鈕 */
-
-.skill-tabs,
-.class-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 24px 0;
-}
-
-.skill-tab,
-.class-tab {
-  padding: 10px 18px;
-  border: 1px solid var(--border-color);
-  color: var(--text-muted);
-  background: transparent;
-  font-size: 12px;
-  transition: all 0.25s ease;
-}
-
-.skill-tab:hover,
-.class-tab:hover,
-.skill-tab.active,
-.class-tab.active {
-  border-color: var(--gold);
-  color: #10111a;
-  background: var(--gold);
-}
-
-/* ---------- 9. 遊戲特色 ---------- */
-
-.features-section,
-#features {
-  padding: 100px 0;
-  background: var(--bg-main);
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
-}
-
-.feature-card {
-  padding: 35px 28px;
-  border: 1px solid rgba(216, 184, 117, 0.2);
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.04),
-    rgba(255, 255, 255, 0.01)
-  );
-  transition:
-    border-color 0.3s ease,
-    transform 0.3s ease;
-}
-
-.feature-card:hover {
-  border-color: var(--gold);
-  transform: translateY(-5px);
-}
-
-.feature-icon {
-  margin-bottom: 18px;
-  color: var(--gold);
-  font-size: 32px;
-}
-
-.feature-card h3 {
-  margin-bottom: 12px;
-  color: var(--gold-light);
-  font-size: 19px;
-}
-
-.feature-card p {
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 2;
-}
-
-/* ---------- 10. 新聞與公告 ---------- */
-
-.news-section,
-#news {
-  padding: 100px 0;
-  background: #0e1220;
-}
-
-.news-list {
-  display: grid;
-  gap: 0;
-  border-top: 1px solid var(--border-color);
-}
-
-.news-item {
-  display: grid;
-  grid-template-columns: 130px 1fr;
-  align-items: center;
-  gap: 25px;
-  padding: 24px 12px;
-  border-bottom: 1px solid rgba(216, 184, 117, 0.15);
-  transition: background 0.25s ease;
-}
-
-.news-item:hover {
-  background: rgba(216, 184, 117, 0.04);
-}
-
-.news-date {
-  color: var(--gold);
-  font-size: 12px;
-  letter-spacing: 1px;
-}
-
-.news-category {
-  display: inline-block;
-  margin-right: 12px;
-  padding: 2px 9px;
-  border: 1px solid var(--border-color);
-  color: var(--gold-light);
-  font-size: 10px;
-}
-
-.news-item h3 {
-  color: var(--text-main);
-  font-size: 15px;
-  font-weight: 500;
-}
-
-/* ---------- 11. 加入遊戲區 ---------- */
-
-.cta-section,
-#download {
-  padding: 110px 24px;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(118, 89, 178, 0.2),
-      transparent 65%
-    ),
-    linear-gradient(
-      135deg,
-      #111526,
-      #080a12
-    );
-  text-align: center;
-}
-
-.cta-section h2 {
-  margin-bottom: 18px;
-  color: var(--gold-light);
-  font-family: Georgia, "Noto Serif TC", serif;
-  font-size: clamp(30px, 5vw, 48px);
-  letter-spacing: 3px;
-}
-
-.cta-section p {
-  margin-bottom: 28px;
-  color: var(--text-muted);
-}
-
-/* ---------- 12. 頁尾 ---------- */
-
-.site-footer,
-footer {
-  padding: 45px 24px;
-  border-top: 1px solid rgba(216, 184, 117, 0.18);
-  background: #06070d;
-  text-align: center;
-}
-
-.footer-logo {
-  margin-bottom: 12px;
-  color: var(--gold);
-  font-family: Georgia, "Noto Serif TC", serif;
-  font-size: 20px;
-  letter-spacing: 3px;
-}
-
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 22px;
-  margin: 20px 0;
-}
-
-.footer-links a {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-.footer-links a:hover {
-  color: var(--gold);
-}
-
-.footer-copy,
-footer p {
-  color: #74798a;
-  font-size: 11px;
-}
-
-/* ---------- 13. 分隔線與裝飾 ---------- */
-
-.gold-divider {
-  width: 70px;
-  height: 2px;
-  margin: 22px 0;
-  background: linear-gradient(
-    90deg,
-    var(--gold),
-    transparent
-  );
-}
-
-.section-heading .gold-divider {
-  margin-inline: auto;
-}
-
-.glow-border {
-  box-shadow: 0 0 25px rgba(216, 184, 117, 0.08);
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* ---------- 14. 平板版 ---------- */
-
-@media (max-width: 1024px) {
-  :root {
-    --header-height: 70px;
-  }
-
-  .nav-links,
-  .nav-menu,
-  nav ul {
-    gap: 16px;
-  }
-
-  .nav-links a,
-  .nav-menu a,
-  nav ul a {
-    font-size: 12px;
-  }
-
-  .classes-grid,
-  .class-grid,
-  .classes-container {
-    gap: 16px;
-  }
-
-  .class-art {
-    height: 360px;
-  }
-
-  .class-info,
-  .class-card-content,
-  .job-info {
-    padding: 22px;
-  }
-
-  .story-grid,
-  .world-grid {
-    gap: 35px;
-  }
-
-  .section {
-    padding: 85px 0;
-  }
-}
-
-/* ---------- 15. 手機版 ---------- */
-
-@media (max-width: 768px) {
-  .container,
-  .section-container {
-    width: calc(100% - 32px);
-  }
-
-  .navbar,
-  .nav-container,
-  header nav {
-    width: calc(100% - 32px);
-    gap: 12px;
-  }
-
-  .logo,
-  .site-logo,
-  .brand {
-    font-size: 17px;
-    letter-spacing: 1px;
-  }
-
-  .nav-links,
-  .nav-menu,
-  nav ul {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px 14px;
-  }
-
-  .nav-links a,
-  .nav-menu a,
-  nav ul a {
-    font-size: 11px;
-  }
-
-  .hero {
-    min-height: 650px;
-    padding: 80px 0;
-    background-position: center;
-  }
-
-  .hero-content {
-    width: calc(100% - 32px);
-  }
-
-  .hero h1,
-  .hero-title {
-    font-size: clamp(38px, 10vw, 60px);
-    letter-spacing: 2px;
-  }
-
-  .hero p {
-    font-size: 13px;
-  }
-
-  .section {
-    padding: 70px 0;
-  }
-
-  .section-heading {
-    margin-bottom: 35px;
-  }
-
-  .section-title {
-    font-size: 30px;
-  }
-
-  .story-grid,
-  .world-grid,
-  .class-detail-content {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-
-  .story-image,
-  .world-image,
-  .class-detail-image {
-    min-height: 300px;
-  }
-
-  .classes-grid,
-  .class-grid,
-  .classes-container {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .class-art {
-    height: 420px;
-    min-height: 300px;
-    background-position: center 25%;
-  }
-
-  .class-info,
-  .class-card-content,
-  .job-info {
-    padding: 24px;
-  }
-
-  .features-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .skill-list,
-  .skills-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .news-item {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 20px 8px;
-  }
-
-  .hero-buttons,
-  .button-group {
-    align-items: stretch;
-  }
-
-  .hero-buttons .btn,
-  .hero-buttons .button,
-  .hero-buttons .btn-primary,
-  .hero-buttons .btn-outline {
-    min-width: 140px;
-  }
-
-  .cta-section {
-    padding: 75px 20px;
-  }
-
-  .footer-links {
-    gap: 12px 18px;
-  }
-}
-
-/* ---------- 16. 小螢幕手機 ---------- */
-
-@media (max-width: 480px) {
-  :root {
-    --header-height: auto;
-  }
-
-  .site-header,
-  header {
-    position: relative;
-  }
-
-  .navbar,
-  .nav-container,
-  header nav {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 16px 0;
-  }
-
-  .nav-links,
-  .nav-menu,
-  nav ul {
-    justify-content: flex-start;
-    width: 100%;
-  }
-
-  .hero {
-    min-height: 560px;
-  }
-
-  .hero h1,
-  .hero-title {
-    font-size: 38px;
-  }
-
-  .hero-kicker,
-  .hero .eyebrow {
-    font-size: 10px;
-    letter-spacing: 3px;
-  }
-
-  .hero-buttons,
-  .button-group {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .hero-buttons a,
-  .button-group a {
-    width: 100%;
-  }
-
-  .class-art {
-    height: 350px;
-    min-height: 280px;
-  }
-
-  .class-name,
-  .class-info h3,
-  .class-card h3,
-  .job-info h3 {
-    font-size: 22px;
-  }
-
-  .section-title {
-    font-size: 27px;
-  }
-}
-
-/* ---------- 17. 減少動態效果 ---------- */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
-}
-
-/* ===== 職業展示圖片 ===== */
-
-.class-showcase {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  align-items: stretch;
-  margin-top: 32px;
-}
-
-#class-art {
-  min-height: 420px;
-  background-color: #151116;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  border: 1px solid #c9a96e66;
-}
-
-/* 聖殿騎士 */
-#class-art.knight-art {
-  background-image: url("assets/images/knight.jpg");
-}
-
-/* 暗影刺客 */
-#class-art.assassin-art {
-  background-image: url("assets/images/assassin.jpg");
-}
-
-/* 符文法師 */
-#class-art.mage-art {
-  background-image: url("assets/images/mage.jpg");
-}
-
-.class-info {
-  padding: 28px;
-  border: 1px solid #c9a96e35;
-  background: #151116;
-}
-
-.class-info h3 {
-  color: #e7d8bc;
-  font-size: 30px;
-}
-
-.class-info h4 {
-  margin-top: 24px;
-  color: #dfc18b;
-}
-
-#class-skills {
-  padding-left: 22px;
-  color: #c6bcba;
-}
-
-#class-skills li {
-  margin: 8px 0;
-}
-
-.class-note {
-  margin-top: 20px;
-  color: #8f8583;
-  font-size: 12px;
-}
-
-@media (max-width: 700px) {
-  .class-showcase {
-    grid-template-columns: 1fr;
-  }
-
-  #class-art {
-    min-height: 350px;
-  }
-}
-
-/* ===== iPad 與手機版排版修正 ===== */
-
-html,
-body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: clip;
-}
-
-img {
-  max-width: 100%;
-}
-
-.class-showcase {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 24px;
-  width: 100%;
-  max-width: 1200px;
-  margin-inline: auto;
-}
-
-#class-art {
-  width: 100%;
-  min-width: 0;
-  min-height: 380px;
-  background-position: center;
-  background-size: cover;
-}
-
-.class-info {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.class-info p,
-.class-info h3,
-.class-info h4 {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-header nav,
-.navbar,
-.nav-container {
-  width: min(1200px, calc(100% - 32px));
-  margin-inline: auto;
-}
-
-.nav-links,
-.nav-menu,
-nav ul {
-  flex-wrap: wrap;
-  gap: 12px 20px;
-}
-
-@media (max-width: 900px) {
-  .class-showcase {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
-  }
-
-  #class-art {
-    min-height: 420px;
-  }
-
-  .class-info {
-    padding: 24px;
-  }
-}
-
-@media (max-width: 600px) {
-  #class-art {
-    min-height: 320px;
-  }
-
-  .class-info {
-    padding: 18px;
-  }
-
-  .nav-links,
-  .nav-menu,
-  nav ul {
-    justify-content: flex-start;
-  }
-}
+    rgba(
