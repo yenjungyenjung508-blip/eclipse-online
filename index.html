@@ -3,114 +3,109 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#09090d">
-  <meta name="description" content="永夜紀元 ECLIPSE ONLINE，一場關於永夜、失落王國與命運的黑暗奇幻冒險。">
-  <title>永夜紀元 ECLIPSE ONLINE｜官方網站</title>
+  <meta name="description" content="永夜紀元 ECLIPSE ONLINE，探索失落王國、選擇你的職業，揭開永夜背後的秘密。">
+  <title>永夜紀元 ECLIPSE ONLINE｜暗黑奇幻 MMORPG</title>
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳至主要內容</a>
 
-  <div class="intro-screen" id="intro-screen" aria-label="永夜紀元">
+  <div class="intro-screen" id="intro-screen">
     <div class="intro-content">
-      <span class="intro-mark">ECLIPSE</span>
-      <p>當永夜降臨，命運再次甦醒</p>
-      <div class="intro-loader"><span></span></div>
-      <button class="intro-enter" id="intro-enter" type="button">
-        踏入永夜
-      </button>
+      <span class="intro-symbol">☾</span>
+      <p class="intro-overline">THE AGE OF ECLIPSE</p>
+      <h1>永夜紀元</h1>
+      <p class="intro-english">ECLIPSE ONLINE</p>
+      <div class="intro-progress"><span></span></div>
+      <button class="button button-primary" id="intro-enter" type="button">踏入永夜</button>
+      <button class="intro-skip" id="intro-skip" type="button">略過開場</button>
     </div>
   </div>
 
   <header class="site-header" id="top">
     <a class="brand" href="#home" aria-label="永夜紀元首頁">
-      <span class="brand-symbol">E</span>
-      <span class="brand-copy">
+      <span class="brand-mark">E</span>
+      <span class="brand-text">
         <strong>永夜紀元</strong>
         <small>ECLIPSE ONLINE</small>
       </span>
     </a>
 
-    <button
-      class="menu-toggle"
-      id="menu-toggle"
-      type="button"
-      aria-label="開啟導覽選單"
-      aria-expanded="false"
-      aria-controls="main-nav"
-    >
-      <span></span><span></span><span></span>
-    </button>
-
     <nav class="main-nav" id="main-nav" aria-label="主要導覽">
       <a href="#home">首頁</a>
       <a href="#story">世界觀</a>
-      <a href="#classes">職業介紹</a>
-      <a href="#world-map">探索世界</a>
-      <a href="#news">最新公告</a>
-      <a class="nav-cta" href="#adventure">開始冒險</a>
+      <a href="#classes">職業</a>
+      <a href="#world-map">探索</a>
+      <a href="#news">公告</a>
+      <button class="nav-icon-button" id="settings-open" type="button" aria-label="開啟網站設定">⚙</button>
     </nav>
+
+    <button class="menu-toggle" id="menu-toggle" type="button"
+      aria-label="開啟選單" aria-controls="main-nav" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </header>
 
   <main id="main">
-    <section class="hero section" id="home">
-      <div class="hero-backdrop" aria-hidden="true"></div>
-      <div class="hero-grid"></div>
+    <section class="hero" id="home">
+      <div class="hero-moon" aria-hidden="true"></div>
+      <div class="hero-orbit hero-orbit-one" aria-hidden="true"></div>
+      <div class="hero-orbit hero-orbit-two" aria-hidden="true"></div>
+      <div class="hero-grid" aria-hidden="true"></div>
 
       <div class="hero-content reveal">
-        <p class="eyebrow"><span></span> A NEW DARK FANTASY BEGINS</p>
+        <p class="eyebrow"><span class="eyebrow-line"></span> A NEW DARK FANTASY BEGINS</p>
         <h1>永夜紀元</h1>
-        <p class="hero-english">ECLIPSE <span>ONLINE</span></p>
-        <div class="gold-line"></div>
+        <p class="hero-title-en">ECLIPSE <span>ONLINE</span></p>
+        <div class="ornament-line"><span>✦</span></div>
         <p class="hero-description">
           當太陽被黑暗吞噬，古老的預言再次甦醒。<br>
-          拿起你的武器，踏上尋回世界黎明的旅程。
+          拿起你的武器，在永夜之中尋找世界的黎明。
         </p>
         <div class="hero-actions">
-          <a class="button button-primary" href="#classes">選擇你的命運</a>
-          <a class="button button-outline" href="#story">探索世界觀</a>
+          <a href="#classes" class="button button-primary">選擇你的職業 <span>↗</span></a>
+          <a href="#story" class="button button-ghost">閱讀世界傳說</a>
         </div>
-        <p class="hero-note">YOUR LEGEND BEGINS IN THE ETERNAL NIGHT</p>
+        <p class="hero-caption">YOUR LEGEND BEGINS IN THE ETERNAL NIGHT</p>
       </div>
 
-      <div class="hero-bottom">
-        <span>01 / THE ETERNAL NIGHT</span>
-        <a href="#story" aria-label="向下探索">向下探索 <span>↓</span></a>
-        <span>FANTASY MMORPG</span>
-      </div>
+      <div class="hero-side-label" aria-hidden="true">THE ETERNAL NIGHT · 001</div>
+      <a class="hero-scroll" href="#story"><span></span> SCROLL TO EXPLORE</a>
     </section>
 
     <section class="section story-section" id="story">
       <div class="section-heading reveal">
         <p class="eyebrow">THE LOST CHRONICLES</p>
-        <h2>世界觀 <span>・</span> 永夜的起源</h2>
+        <h2>世界觀 <span>／</span> 永夜的起源</h2>
         <p>光明並未消失，只是被遺忘在歷史的盡頭。</p>
       </div>
 
       <div class="story-layout">
-        <div class="story-emblem reveal" aria-hidden="true">
-          <div class="emblem-ring">
-            <span class="emblem-symbol">☾</span>
-            <span class="emblem-text">THE ECLIPSE</span>
+        <div class="story-art reveal" aria-hidden="true">
+          <div class="story-rune rune-one">ᛟ</div>
+          <div class="story-rune rune-two">ᛉ</div>
+          <div class="story-sigil">
+            <span class="sigil-moon">☾</span>
+            <span class="sigil-star">✦</span>
+            <span class="sigil-label">THE ECLIPSE</span>
           </div>
+          <span class="story-art-caption">ARCHIVE NO. 001</span>
         </div>
 
         <div class="story-copy reveal">
-          <p class="story-kicker">THE AGE OF ECLIPSE</p>
-          <h3>世界在黑暗中等待<br>下一位傳說的誕生。</h3>
-          <p>
-            在遙遠的過去，光明與暗影維持著脆弱的平衡。
-            直到某一天，天空中的太陽失去了光芒，
-            古老的封印開始崩解，沉睡的力量逐一甦醒。
-          </p>
-          <p>
-            王國陷入紛爭，遺跡傳來低語，未知的魔物在荒野徘徊。
-            你將選擇自己的道路，尋找永夜背後的真相，
-            並決定這個世界最後的命運。
-          </p>
-          <a class="text-link" href="#world-map">前往探索世界 <span>↗</span></a>
+          <p class="eyebrow">THE AGE OF ECLIPSE</p>
+          <h3>當世界失去黎明，<br>傳說便開始甦醒。</h3>
+          <p>在遙遠的過去，光明與暗影維持著脆弱的平衡。直到某一天，天空中的太陽失去了光芒，古老封印開始崩解，沉睡的力量逐一甦醒。</p>
+          <p>王國陷入紛爭，遺跡傳來低語，未知魔物在荒野徘徊。你將選擇自己的道路，尋找永夜背後的真相，並決定這個世界最後的命運。</p>
+          <div class="story-facts">
+            <div><strong>01</strong><span>失落王國</span></div>
+            <div><strong>02</strong><span>古代封印</span></div>
+            <div><strong>03</strong><span>永夜預言</span></div>
+          </div>
+          <a href="#world-map" class="text-link">探索未知世界 <span>↗</span></a>
         </div>
       </div>
     </section>
@@ -118,91 +113,114 @@
     <section class="section classes-section" id="classes">
       <div class="section-heading reveal">
         <p class="eyebrow">CHOOSE YOUR DESTINY</p>
-        <h2>職業介紹 <span>・</span> 你的戰鬥方式</h2>
-        <p>選擇你的道路，在永夜之中留下名字。</p>
+        <h2>職業圖鑑 <span>／</span> 選擇你的道路</h2>
+        <p>每一種力量，都有自己的代價與使命。</p>
       </div>
 
-      <div class="class-showcase reveal" id="class-showcase">
-        <div class="class-art-wrap">
-          <div class="class-art-glow"></div>
-          <img
-            id="class-art"
-            class="class-art knight-art"
-            src="assets/images/knight.jpg"
-            alt="聖殿騎士"
-            loading="lazy"
-          >
-          <span class="class-art-label">CLASS / <span id="class-number">01</span></span>
+      <div class="class-toolbar reveal">
+        <label class="search-field">
+          <span aria-hidden="true">⌕</span>
+          <input id="class-search" type="search" placeholder="搜尋職業名稱或特色…" aria-label="搜尋職業">
+        </label>
+        <div class="filter-group" role="group" aria-label="職業篩選">
+          <button class="filter-button is-active" data-class-filter="all" type="button">全部職業</button>
+          <button class="filter-button" data-class-filter="melee" type="button">近戰</button>
+          <button class="filter-button" data-class-filter="ranged" type="button">遠程</button>
+        </div>
+      </div>
+
+      <div class="class-showcase reveal">
+        <div class="class-image-panel">
+          <div class="class-image-frame">
+            <div class="image-aura"></div>
+            <img id="class-art" src="assets/images/knight.jpg" alt="聖殿騎士職業圖片">
+            <span class="image-corner image-corner-tl"></span>
+            <span class="image-corner image-corner-br"></span>
+          </div>
+          <div class="class-image-bottom">
+            <span>CLASS ARCHIVE</span>
+            <span id="class-number">01 / 03</span>
+          </div>
         </div>
 
-        <div class="class-details">
+        <div class="class-info">
           <p class="eyebrow" id="class-subtitle">HOLY GUARDIAN</p>
           <h3 id="class-name">聖殿騎士</h3>
           <p class="class-english" id="class-english">TEMPLE KNIGHT</p>
-          <div class="gold-line"></div>
-          <p id="class-description">
-            身披古老誓約的重裝戰士，以堅定意志守護同伴，
-            在黑暗最深處築起不可撼動的防線。
-          </p>
+          <div class="ornament-line ornament-left"><span>✦</span></div>
+          <p id="class-description" class="class-description">身披古老誓約的重裝戰士，以堅定意志守護同伴，在黑暗最深處築起不可撼動的防線。</p>
 
-          <div class="class-stats">
-            <div class="stat-row">
-              <span>攻擊</span>
-              <div class="stat-track"><span id="stat-attack" style="width:75%"></span></div>
-            </div>
-            <div class="stat-row">
-              <span>防禦</span>
-              <div class="stat-track"><span id="stat-defense" style="width:95%"></span></div>
-            </div>
-            <div class="stat-row">
-              <span>速度</span>
-              <div class="stat-track"><span id="stat-speed" style="width:55%"></span></div>
-            </div>
-            <div class="stat-row">
-              <span>魔力</span>
-              <div class="stat-track"><span id="stat-magic" style="width:45%"></span></div>
-            </div>
+          <div class="class-badges" id="class-badges">
+            <span>近戰</span><span>防禦</span><span>守護</span>
           </div>
 
-          <h4 class="skills-heading">戰鬥特性</h4>
-          <div class="class-skills" id="class-skills">
-            <span>神聖壁壘</span>
-            <span>守護誓約</span>
-            <span>制裁重擊</span>
+          <div class="stat-list">
+            <div class="stat-row"><span>攻擊</span><div class="stat-track"><span id="stat-attack" style="width:75%"></span></div><strong id="value-attack">75</strong></div>
+            <div class="stat-row"><span>防禦</span><div class="stat-track"><span id="stat-defense" style="width:95%"></span></div><strong id="value-defense">95</strong></div>
+            <div class="stat-row"><span>速度</span><div class="stat-track"><span id="stat-speed" style="width:55%"></span></div><strong id="value-speed">55</strong></div>
+            <div class="stat-row"><span>魔力</span><div class="stat-track"><span id="stat-magic" style="width:45%"></span></div><strong id="value-magic">45</strong></div>
           </div>
 
-          <div class="class-controls">
-            <button class="class-arrow" id="class-prev" type="button" aria-label="上一個職業">←</button>
+          <div class="skill-heading"><span>戰鬥特性</span><span>COMBAT SKILLS</span></div>
+          <div class="skill-list" id="class-skills">
+            <span>神聖壁壘</span><span>守護誓約</span><span>制裁重擊</span>
+          </div>
+
+          <div class="class-actions">
+            <button class="button button-outline" id="class-prev" type="button" aria-label="上一個職業">←</button>
             <div class="class-selector" role="group" aria-label="選擇職業">
               <button class="class-tab is-active" data-class="knight" type="button" aria-pressed="true">騎士</button>
               <button class="class-tab" data-class="assassin" type="button" aria-pressed="false">刺客</button>
               <button class="class-tab" data-class="mage" type="button" aria-pressed="false">法師</button>
             </div>
-            <button class="class-arrow" id="class-next" type="button" aria-label="下一個職業">→</button>
+            <button class="button button-outline" id="class-next" type="button" aria-label="下一個職業">→</button>
           </div>
+
+          <button class="favorite-button" id="favorite-class" type="button" aria-pressed="false">
+            <span id="favorite-icon">☆</span> <span id="favorite-label">收藏此職業</span>
+          </button>
         </div>
       </div>
+
+      <div class="class-empty" id="class-empty" hidden>
+        <p>找不到符合條件的職業。</p>
+        <button class="text-link" id="class-reset" type="button">清除篩選條件 ↻</button>
+      </div>
+
+      <div class="class-cards" id="class-cards" aria-label="職業快速選擇">
+        <button class="class-card is-active" data-card-class="knight" type="button">
+          <span class="class-card-number">01</span><strong>聖殿騎士</strong><small>TEMPLE KNIGHT</small><span class="class-card-role">近戰・守護</span>
+        </button>
+        <button class="class-card" data-card-class="assassin" type="button">
+          <span class="class-card-number">02</span><strong>暗影刺客</strong><small>SHADOW ASSASSIN</small><span class="class-card-role">近戰・敏捷</span>
+        </button>
+        <button class="class-card" data-card-class="mage" type="button">
+          <span class="class-card-number">03</span><strong>符文法師</strong><small>RUNE MAGE</small><span class="class-card-role">遠程・魔法</span>
+        </button>
+      </div>
+      <p class="content-note">職業數值與技能為網站展示設定，不代表實際遊戲平衡數值。</p>
     </section>
 
     <section class="section map-section" id="world-map">
       <div class="section-heading reveal">
         <p class="eyebrow">BEYOND THE KNOWN WORLD</p>
-        <h2>探索世界 <span>・</span> 未知之境</h2>
-        <p>每一片土地，都埋藏著永夜留下的秘密。</p>
+        <h2>世界探索 <span>／</span> 未知之境</h2>
+        <p>選擇地圖上的座標，閱讀各區域的傳說。</p>
       </div>
 
       <div class="map-layout reveal">
-        <div class="map-visual" role="img" aria-label="永夜世界地圖風格示意">
-          <div class="map-orbit orbit-one"></div>
-          <div class="map-orbit orbit-two"></div>
-          <div class="map-crosshair">✦</div>
-          <button class="map-pin pin-capital is-active" data-region="capital" type="button" aria-label="查看暮光王城">✦</button>
-          <button class="map-pin pin-forest" data-region="forest" type="button" aria-label="查看幽影森林">✦</button>
-          <button class="map-pin pin-ruins" data-region="ruins" type="button" aria-label="查看失落遺跡">✦</button>
-          <button class="map-pin pin-abyss" data-region="abyss" type="button" aria-label="查看深淵邊境">✦</button>
-          <span class="map-coordinate coordinate-one">N 47° / E 12°</span>
-          <span class="map-coordinate coordinate-two">ECLIPSE CONTINENT</span>
+        <div class="map-visual" role="group" aria-label="互動式示意世界地圖">
+          <div class="map-land land-one"></div>
+          <div class="map-land land-two"></div>
+          <div class="map-land land-three"></div>
+          <div class="map-grid"></div>
+          <span class="map-coordinate coordinate-top">ECLIPSE CONTINENT</span>
           <span class="map-compass">N<br>✥</span>
+          <button class="map-pin pin-capital is-active" data-region="capital" type="button" aria-label="暮光王城">✦<span>暮光王城</span></button>
+          <button class="map-pin pin-forest" data-region="forest" type="button" aria-label="幽影森林">✦<span>幽影森林</span></button>
+          <button class="map-pin pin-ruins" data-region="ruins" type="button" aria-label="失落遺跡">✦<span>失落遺跡</span></button>
+          <button class="map-pin pin-abyss" data-region="abyss" type="button" aria-label="深淵邊境">✦<span>深淵邊境</span></button>
+          <span class="map-coordinate coordinate-bottom">ARCHIVE / 001—004</span>
         </div>
 
         <div class="region-panel">
@@ -210,19 +228,11 @@
           <p class="region-index" id="region-index">REGION 01 / 04</p>
           <h3 id="region-name">暮光王城</h3>
           <p class="region-english" id="region-english">THE DUSK CAPITAL</p>
-          <div class="gold-line"></div>
-          <p id="region-description">
-            曾經繁盛的王國中心，如今仍有守衛與旅人試圖在漫長黑夜中維持秩序。
-          </p>
-          <div class="region-meta">
-            <span>區域類型</span>
-            <strong id="region-type">安全區域</strong>
-          </div>
-          <div class="region-meta">
-            <span>探索建議</span>
-            <strong id="region-level">初階冒險者</strong>
-          </div>
-          <div class="region-list" aria-label="選擇探索區域">
+          <div class="ornament-line ornament-left"><span>✦</span></div>
+          <p id="region-description">曾經繁盛的王國中心，如今仍有守衛與旅人試圖在漫長黑夜中維持秩序。</p>
+          <div class="region-meta"><span>區域類型</span><strong id="region-type">安全區域</strong></div>
+          <div class="region-meta"><span>探索建議</span><strong id="region-level">初階冒險者</strong></div>
+          <div class="region-options" aria-label="選擇區域">
             <button class="region-option is-active" data-region="capital" type="button">01 暮光王城</button>
             <button class="region-option" data-region="forest" type="button">02 幽影森林</button>
             <button class="region-option" data-region="ruins" type="button">03 失落遺跡</button>
@@ -230,110 +240,127 @@
           </div>
         </div>
       </div>
-      <p class="map-disclaimer">此區域資訊為網站世界觀展示內容，並非遊戲內即時地圖。</p>
+      <p class="content-note">本地圖為互動式世界觀示意，並非遊戲內即時地圖。</p>
     </section>
 
     <section class="section features-section" id="features">
       <div class="section-heading reveal">
         <p class="eyebrow">A WORLD WITHOUT END</p>
-        <h2>冒險特色 <span>・</span> 書寫你的傳說</h2>
+        <h2>冒險特色 <span>／</span> 書寫你的傳說</h2>
         <p>每一次選擇，都可能改變你在永夜中的旅程。</p>
       </div>
 
       <div class="feature-grid">
-        <article class="feature-card reveal">
-          <span class="feature-number">01</span>
-          <div class="feature-icon">⚔</div>
-          <h3>命運職業</h3>
-          <p>選擇不同戰鬥風格，探索專屬於你的冒險方式。</p>
-          <span class="feature-foot">CHOOSE YOUR PATH</span>
-        </article>
-        <article class="feature-card reveal">
-          <span class="feature-number">02</span>
-          <div class="feature-icon">◇</div>
-          <h3>失落世界</h3>
-          <p>深入古老遺跡與未知之境，追尋被掩埋的歷史。</p>
-          <span class="feature-foot">DISCOVER THE UNKNOWN</span>
-        </article>
-        <article class="feature-card reveal">
-          <span class="feature-number">03</span>
-          <div class="feature-icon">☾</div>
-          <h3>永夜傳說</h3>
-          <p>揭開黑暗背後的秘密，尋找世界重新迎向黎明的可能。</p>
-          <span class="feature-foot">UNVEIL THE ECLIPSE</span>
-        </article>
+        <article class="feature-card reveal"><span class="feature-number">01</span><span class="feature-icon">⚔</span><h3>命運職業</h3><p>以不同戰鬥風格探索屬於你的冒險道路。</p><small>CHOOSE YOUR PATH</small></article>
+        <article class="feature-card reveal"><span class="feature-number">02</span><span class="feature-icon">◇</span><h3>失落世界</h3><p>深入古老遺跡與未知之境，追尋被掩埋的歷史。</p><small>DISCOVER THE UNKNOWN</small></article>
+        <article class="feature-card reveal"><span class="feature-number">03</span><span class="feature-icon">☾</span><h3>永夜傳說</h3><p>揭開黑暗背後的秘密，尋找迎向黎明的可能。</p><small>UNVEIL THE ECLIPSE</small></article>
       </div>
     </section>
 
     <section class="section news-section" id="news">
-      <div class="news-heading reveal">
+      <div class="news-header reveal">
         <div class="section-heading section-heading-left">
           <p class="eyebrow">LATEST TRANSMISSIONS</p>
-          <h2>最新公告 <span>・</span> 冒險情報</h2>
-          <p>掌握永夜紀元的最新消息。</p>
+          <h2>公告情報 <span>／</span> 冒險紀錄</h2>
+          <p>搜尋公告，依類別尋找你感興趣的內容。</p>
         </div>
-        <span class="news-label">NEWS & EVENTS</span>
+        <span class="news-count" id="news-count">03 RECORDS</span>
       </div>
 
-      <div class="news-grid">
-        <article class="news-card reveal">
-          <div class="news-card-top"><span>WORLD</span><span>01</span></div>
-          <p class="news-date">世界觀情報</p>
+      <div class="news-toolbar reveal">
+        <label class="search-field">
+          <span aria-hidden="true">⌕</span>
+          <input id="news-search" type="search" placeholder="搜尋公告標題或內容…" aria-label="搜尋公告">
+        </label>
+        <div class="filter-group" role="group" aria-label="公告分類">
+          <button class="news-filter is-active" data-news-filter="all" type="button">全部</button>
+          <button class="news-filter" data-news-filter="world" type="button">世界觀</button>
+          <button class="news-filter" data-news-filter="class" type="button">職業</button>
+          <button class="news-filter" data-news-filter="explore" type="button">探索</button>
+        </div>
+      </div>
+
+      <div class="news-grid" id="news-grid">
+        <article class="news-card reveal" data-category="world">
+          <div class="news-card-top"><span>WORLD / 001</span><span>✦</span></div>
+          <p class="news-type">世界觀情報</p>
           <h3>永夜紀元：世界序章</h3>
-          <p>太陽失去光芒，古老的封印逐漸崩解。踏上旅程，尋找世界改變的原因。</p>
+          <p>太陽失去光芒，古老封印逐漸崩解。踏上旅程，尋找世界改變的原因。</p>
           <a href="#story" class="text-link">閱讀世界觀 <span>↗</span></a>
         </article>
-        <article class="news-card reveal">
-          <div class="news-card-top"><span>CLASSES</span><span>02</span></div>
-          <p class="news-date">職業情報</p>
+        <article class="news-card reveal" data-category="class">
+          <div class="news-card-top"><span>CLASS / 002</span><span>✦</span></div>
+          <p class="news-type">職業情報</p>
           <h3>尋找你的戰鬥道路</h3>
           <p>從聖殿騎士、暗影刺客到符文法師，了解不同職業的定位與特色。</p>
           <a href="#classes" class="text-link">查看職業 <span>↗</span></a>
         </article>
-        <article class="news-card reveal">
-          <div class="news-card-top"><span>EXPLORATION</span><span>03</span></div>
-          <p class="news-date">探索情報</p>
+        <article class="news-card reveal" data-category="explore">
+          <div class="news-card-top"><span>EXPLORE / 003</span><span>✦</span></div>
+          <p class="news-type">探索情報</p>
           <h3>未知之境等待探索</h3>
           <p>從暮光王城出發，前往幽影森林、失落遺跡與深淵邊境。</p>
           <a href="#world-map" class="text-link">探索地圖 <span>↗</span></a>
         </article>
       </div>
-      <p class="news-disclaimer">以上為網站展示用內容，並非已確認的遊戲營運公告或實際活動日期。</p>
+      <p class="empty-message" id="news-empty" hidden>找不到符合條件的公告，請更改搜尋文字或分類。</p>
+      <p class="content-note">以上為展示用公告，不代表已確認的遊戲營運消息或正式活動日期。</p>
     </section>
 
-    <section class="adventure-section" id="adventure">
+    <section class="adventure-cta">
       <div class="adventure-inner reveal">
         <p class="eyebrow">YOUR DESTINY AWAITS</p>
         <h2>永夜之中，傳說由你開始。</h2>
-        <p>世界仍在等待一個答案。你，準備好踏出第一步了嗎？</p>
-        <a href="#home" class="button button-primary">再次踏入永夜</a>
+        <p>世界仍在等待一個答案。你準備好踏出第一步了嗎？</p>
+        <a href="#home" class="button button-primary">返回命運的起點 ↑</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <a class="brand footer-brand" href="#home">
-      <span class="brand-symbol">E</span>
-      <span class="brand-copy">
-        <strong>永夜紀元</strong>
-        <small>ECLIPSE ONLINE</small>
-      </span>
+    <a class="brand" href="#home">
+      <span class="brand-mark">E</span>
+      <span class="brand-text"><strong>永夜紀元</strong><small>ECLIPSE ONLINE</small></span>
     </a>
-    <p>當永夜降臨，命運再次甦醒。</p>
-    <div class="footer-links">
-      <a href="#story">世界觀</a>
-      <a href="#classes">職業</a>
-      <a href="#news">公告</a>
-    </div>
-    <small class="copyright">© <span id="current-year"></span> ECLIPSE ONLINE. FAN / PROJECT WEBSITE.</small>
-    <small class="footer-disclaimer">本網站為專案展示頁面；遊戲營運狀態、下載及登入服務未在此網站提供。</small>
+    <p class="footer-tagline">當永夜降臨，命運再次甦醒。</p>
+    <div class="footer-links"><a href="#story">世界觀</a><a href="#classes">職業圖鑑</a><a href="#world-map">探索世界</a><a href="#news">公告情報</a></div>
+    <small>© <span id="current-year"></span> ECLIPSE ONLINE · PROJECT WEBSITE</small>
+    <small class="footer-note">本網站為靜態展示專案，未提供遊戲登入、下載、付款或伺服器服務。</small>
   </footer>
 
   <audio id="bg-music" src="assets/audio/theme.mp3" loop preload="none"></audio>
+
   <button class="music-toggle" id="music-toggle" type="button" aria-pressed="false">
-    <span class="music-icon">♫</span><span id="music-label">播放音樂</span>
+    <span>♫</span><span id="music-label">播放音樂</span>
   </button>
-  <button class="back-to-top" id="back-to-top" type="button" aria-label="返回頁面頂部">↑</button>
+  <button class="back-to-top" id="back-to-top" type="button" aria-label="返回頂部">↑</button>
+
+  <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
+    <div class="settings-header">
+      <div><p class="eyebrow">PERSONAL PREFERENCES</p><h2 id="settings-title">網站設定</h2></div>
+      <button class="settings-close" id="settings-close" type="button" aria-label="關閉設定">×</button>
+    </div>
+    <div class="settings-body">
+      <label class="setting-row" for="brightness-setting">
+        <span><strong>介面亮度</strong><small>調整網站背景明暗</small></span>
+        <input id="brightness-setting" type="range" min="70" max="120" step="5" value="100">
+      </label>
+      <label class="setting-row" for="motion-setting">
+        <span><strong>動態效果</strong><small>關閉淡入與裝飾動畫</small></span>
+        <input id="motion-setting" type="checkbox">
+      </label>
+      <label class="setting-row" for="music-setting">
+        <span><strong>背景音樂</strong><small>允許音樂按鈕播放音樂</small></span>
+        <input id="music-setting" type="checkbox" checked>
+      </label>
+      <p class="settings-hint">設定只儲存在目前瀏覽器，不會變更遊戲帳號或其他訪客的設定。</p>
+    </div>
+    <div class="settings-footer">
+      <button class="button button-outline" id="settings-reset" type="button">恢復預設</button>
+      <button class="button button-primary" id="settings-save" type="button">完成設定</button>
+    </div>
+  </dialog>
+
   <div class="site-toast" id="site-toast" role="status" aria-live="polite"></div>
 </body>
 </html>
