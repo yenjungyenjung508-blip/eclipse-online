@@ -702,14 +702,29 @@
   });
   $("resetButton").addEventListener("click", startFresh);
 
-  // 讓重新開始時的角色資料與畫面一致
-  state.hp = clamp(Number(state.hp) || maxHP(), 0, maxHP());
-  state.mp = clamp(Number(state.mp) || maxMP(), 0, maxMP());
-  state.potions = Math.max(0, Number(state.potions) || 0);
+
+  // 整理角色存檔資料，保留真正的 0 HP 與 0 MP
+  state.level = Math.max(1, Number(state.level) || 1);
+  state.xp = Math.max(0, Number(state.xp) || 0);
   state.gold = Math.max(0, Number(state.gold) || 0);
   state.kills = Math.max(0, Number(state.kills) || 0);
-  state.xp = Math.max(0, Number(state.xp) || 0);
-  state.level = Math.max(1, Number(state.level) || 1);
+  state.potions = Math.max(0, Number(state.potions) || 0);
+
+  const savedHP = Number(state.hp);
+  const savedMP = Number(state.mp);
+
+  state.hp = clamp(
+    Number.isFinite(savedHP) ? savedHP : maxHP(),
+    0,
+    maxHP()
+  );
+
+  state.mp = clamp(
+    Number.isFinite(savedMP) ? savedMP : maxMP(),
+    0,
+    maxMP()
+  );
+
   player.attack = 18 + (state.level - 1) * 4;
   player.defense = 5 + (state.level - 1);
 
