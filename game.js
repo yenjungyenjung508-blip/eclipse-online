@@ -103,18 +103,71 @@
   function maxMP() { return 40 + (state.level - 1) * 6; }
   function xpNeeded() { return state.level * 100; }
 
+  
   function createEnemy() {
-    const side = Math.random() < 0.5 ? -1 : 1;
-    const x = side < 0 ? W - 65 : W - 65;
-    const y = 90 + Math.random() * (H - 180);
     const scale = 1 + Math.max(0, state.level - 1) * 0.13;
+
+    // 依機率決定魔物種類
+    const roll = Math.random();
+    let type;
+
+    if (roll < 0.55) {
+      type = {
+        name: "暗影小鬼",
+        r: 14,
+        hp: 30,
+        speed: 78,
+        damage: 7,
+        xp: 20,
+        goldMin: 6,
+        goldMax: 12,
+        color: "#76509b",
+        rare: false
+      };
+    } else if (roll < 0.88) {
+      type = {
+        name: "腐朽戰士",
+        r: 19,
+        hp: 65,
+        speed: 42,
+        damage: 12,
+        xp: 35,
+        goldMin: 12,
+        goldMax: 22,
+        color: "#777d88",
+        rare: false
+      };
+    } else {
+      type = {
+        name: "永夜獵手",
+        r: 21,
+        hp: 90,
+        speed: 65,
+        damage: 16,
+        xp: 55,
+        goldMin: 25,
+        goldMax: 40,
+        color: "#c05cba",
+        rare: true
+      };
+    }
+
+    const x = W - 65;
+    const y = 90 + Math.random() * (H - 180);
+    const hp = Math.round(type.hp * scale);
+
     enemies.push({
-      x, y, r: 17, hp: Math.round(42 * scale),
-      maxHp: Math.round(42 * scale),
-      speed: 48 + Math.random() * 16 + state.level * 2,
-      damage: Math.round(9 * scale),
-      attackAt: 0, flashUntil: 0,
-      dead: false, phase: Math.random() * 6
+      ...type,
+      x,
+      y,
+      hp,
+      maxHp: hp,
+      speed: type.speed + state.level * 1.5,
+      damage: Math.round(type.damage * scale),
+      attackAt: 0,
+      flashUntil: 0,
+      dead: false,
+      phase: Math.random() * 6
     });
   }
 
