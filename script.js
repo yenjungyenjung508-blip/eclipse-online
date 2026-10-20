@@ -2,633 +2,481 @@
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const $ = (selector, root = document) => root.querySelector(selector);
-  const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const $ = (selector, parent = document) => parent.querySelector(selector);
+  const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
 
-  const toast = $("#site-toast");
-  let toastTimer;
+  // 本地設定儲存：若瀏覽器不支援儲存，其他功能仍可使用。
+  const storage = {
+    get(key, fallback = null) {
+      try {
+        const value = localStorage.getItem(key);
+        return value === null ? fallback : value;
+      } catch {
+        return fallback;
+      }
+    },
+    set(key, value) {
+      try {
+        localStorage.setItem(key, String(value));
+      } catch {
+        // 隱私模式或儲存空間受限時，忽略儲存錯誤。
+      }
+    }
+  };
 
-  function showToast(message) {
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add("is-visible");
-    window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => {
-      toast.classList.remove("is-visible");
-    }, 3000);
-  }
-
-  /* 開場動畫 */
-
+  // 進場畫面
   const intro = $("#intro-screen");
-  const introEnter = $("#intro-enter");
-  const introSkip = $("#intro-skip");
-  let introClosed = false;
+  const enterButton = $("#enter-world");
 
-  function closeIntro() {
-    if (!intro || introClosed) return;
-    introClosed = true;
+  function enterWorld() {
+    if (!intro || intro.classList.contains("is-hidden")) return;
     intro.classList.add("is-hidden");
-    document.body.classList.remove("intro-active");
-    window.setTimeout(() => {
-      intro.hidden = true;
-    }, 750);
+    storage.set("eclipse-intro-seen", "yes");
   }
 
-  if (intro) {
-    document.body.classList.add("intro-active");
-    if (introEnter) introEnter.addEventListener("click", closeIntro);
-    if (introSkip) introSkip.addEventListener("click", closeIntro);
-    window.setTimeout(closeIntro, 4500);
+  if (storage.get("eclipse-intro-seen") === "yes" && intro) {
+    intro.classList.add("is-hidden");
   }
+  enterButton?.addEventListener("click", enterWorld);
 
-  /* 手機導覽 */
+  // 若訪客尚未按下進入，點擊導覽連結時也允許進入。
+  $$(".site-header a, .hero-actions a").forEach(link => {
+    link.addEventListener("click", enterWorld);
+  });
 
+  // 手機選單
   const menuToggle = $("#menu-toggle");
   const mainNav = $("#main-nav");
 
-  function setMenuOpen(open) {
-    if (!menuToggle || !mainNav) return;
-    menuToggle.setAttribute("aria-expanded", String(open));
-    menuToggle.setAttribute("aria-label", open ? "關閉選單" : "開啟選單");
-    mainNav.classList.toggle("is-open", open);
-    document.body.classList.toggle("menu-open", open);
+  function closeMenu() {
+    mainNav?.classList.remove("open");
+    menuToggle?.setAttribute("aria-expanded", "false");
+    menuToggle?.setAttribute("aria-label", "開啟導覽選單");
   }
 
-  if (menuToggle && mainNav) {
-    menuToggle.addEventListener("click", () => {
-      setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
-    });
-
-    $$("#main-nav a").forEach(link => {
-      link.addEventListener("click", () => setMenuOpen(false));
-    });
-
-    document.addEventListener("click", event => {
-      if (
-        mainNav.classList.contains("is-open") &&
-        !mainNav.contains(event.target) &&
-        !menuToggle.contains(event.target)
-      ) setMenuOpen(false);
-    });
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 760) setMenuOpen(false);
-    });
-  }
-
-  /* 職業資料 */
-
-  const classes = {
-    knight: {
-      number: "01 / 03",
-      name: "聖殿騎士",
-      english: "TEMPLE KNIGHT",
-      subtitle: "HOLY GUARDIAN",
-      image: "assets/images/knight.jpg",
-      description: "身披古老誓約的重裝戰士，以堅定意志守護同伴，在黑暗最深處築起不可撼動的防線。",
-      role: "近戰・守護",
-      type: "melee",
-      badges: ["近戰", "防禦", "守護"],
-      stats: { attack: 75, defense: 95, speed: 55, magic: 45 },
-      skills: ["神聖壁壘", "守護誓約", "制裁重擊"]
-    },
-    assassin: {
-      number: "02 / 03",
-      name: "暗影刺客",
-      english: "SHADOW ASSASSIN",
-      subtitle: "BLADE OF SHADOWS",
-      image: "assets/images/assassin.jpg",
-      description: "行走於光影交界的迅捷獵手，以敏捷身法與精準攻擊掌握戰局，在敵人察覺之前決定勝負。",
-      role: "近戰・敏捷",
-      type: "melee",
-      badges: ["近戰", "敏捷", "爆發"],
-      stats: { attack: 92, defense: 48, speed: 98, magic: 42 },
-      skills: ["瞬影突襲", "致命標記", "暗幕遁形"]
-    },
-    mage: {
-      number: "03 / 03",
-      name: "符文法師",
-      english: "RUNE MAGE",
-      subtitle: "KEEPER OF ARCANE",
-      image: "assets/images/mage.jpg",
-      description: "研習古代符文與失落秘術的施法者，能引導強大的魔法能量，以智慧與元素之力扭轉戰場。",
-      role: "遠程・魔法",
-      type: "ranged",
-      badges: ["遠程", "魔法", "元素"],
-      stats: { attack: 94, defense: 40, speed: 60, magic: 100 },
-      skills: ["星隕術式", "永夜結界", "奧術共鳴"]
-    }
-  };
-
-  const classOrder = Object.keys(classes);
-  let currentClass = "knight";
-  let activeClassFilter = "all";
-  let classSearch = "";
-
-  const classArt = $("#class-art");
-  const favoriteButton = $("#favorite-class");
-
-  function readFavorites() {
-    try {
-      const saved = JSON.parse(localStorage.getItem("eclipse-favorite-classes") || "[]");
-      return Array.isArray(saved) ? saved.filter(key => classOrder.includes(key)) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  let favorites = readFavorites();
-
-  function saveFavorites() {
-    try {
-      localStorage.setItem("eclipse-favorite-classes", JSON.stringify(favorites));
-    } catch {
-      showToast("瀏覽器未允許儲存收藏，重新整理後可能無法保留。");
-    }
-  }
-
-  function updateFavoritesUI() {
-    const isFavorite = favorites.includes(currentClass);
-    if ($("#favorite-icon")) $("#favorite-icon").textContent = isFavorite ? "★" : "☆";
-    if ($("#favorite-label")) $("#favorite-label").textContent = isFavorite ? "已收藏此職業" : "收藏此職業";
-    if (favoriteButton) favoriteButton.setAttribute("aria-pressed", String(isFavorite));
-
-    $$(".class-card").forEach(card => {
-      const active = card.dataset.cardClass === currentClass;
-      card.classList.toggle("is-active", active);
-      card.setAttribute("aria-pressed", String(active));
-      card.classList.toggle("is-favorite", favorites.includes(card.dataset.cardClass));
-    });
-  }
-
-  function updateStats(stats) {
-    ["attack", "defense", "speed", "magic"].forEach(key => {
-      const bar = $(`#stat-${key}`);
-      const value = $(`#value-${key}`);
-      const number = Math.max(0, Math.min(100, Number(stats[key]) || 0));
-      if (bar) bar.style.width = `${number}%`;
-      if (bar) bar.setAttribute("aria-label", `${key}: ${number}`);
-      if (value) value.textContent = String(number);
-    });
-  }
-
-  function selectClass(key) {
-    const data = classes[key];
-    if (!data) return;
-    currentClass = key;
-
-    $$(".class-tab").forEach(button => {
-      const active = button.dataset.class === key;
-      button.classList.toggle("is-active", active);
-      button.setAttribute("aria-pressed", String(active));
-    });
-
-    if ($("#class-number")) $("#class-number").textContent = data.number;
-    if ($("#class-name")) $("#class-name").textContent = data.name;
-    if ($("#class-english")) $("#class-english").textContent = data.english;
-    if ($("#class-subtitle")) $("#class-subtitle").textContent = data.subtitle;
-    if ($("#class-description")) $("#class-description").textContent = data.description;
-
-    if (classArt) {
-      classArt.classList.add("is-changing");
-      classArt.onerror = () => {
-        classArt.classList.remove("is-changing");
-        showToast(`無法載入圖片：${data.image}，請檢查檔名與路徑。`);
-      };
-      classArt.onload = () => classArt.classList.remove("is-changing");
-
-      // 先設定事件，再更換來源，避免快取圖片錯過載入事件。
-      window.setTimeout(() => {
-        classArt.src = data.image;
-        classArt.alt = `${data.name}職業圖片`;
-        if (classArt.complete && classArt.naturalWidth > 0) {
-          classArt.classList.remove("is-changing");
-        }
-      }, 120);
-    }
-
-    const badges = $("#class-badges");
-    if (badges) {
-      badges.replaceChildren();
-      data.badges.forEach(text => {
-        const span = document.createElement("span");
-        span.textContent = text;
-        badges.appendChild(span);
-      });
-    }
-
-    const skills = $("#class-skills");
-    if (skills) {
-      skills.replaceChildren();
-      data.skills.forEach(text => {
-        const span = document.createElement("span");
-        span.textContent = text;
-        skills.appendChild(span);
-      });
-    }
-
-    updateStats(data.stats);
-    updateFavoritesUI();
-    applyClassFilters();
-  }
-
-  function moveClass(direction) {
-    const index = classOrder.indexOf(currentClass);
-    const next = (index + direction + classOrder.length) % classOrder.length;
-    selectClass(classOrder[next]);
-  }
-
-  $$(".class-tab").forEach(button => {
-    button.addEventListener("click", () => selectClass(button.dataset.class));
+  menuToggle?.addEventListener("click", () => {
+    const isOpen = mainNav.classList.toggle("open");
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
+    menuToggle.setAttribute("aria-label", isOpen ? "關閉導覽選單" : "開啟導覽選單");
   });
 
-  $$(".class-card").forEach(button => {
-    button.addEventListener("click", () => selectClass(button.dataset.cardClass));
-  });
-
-  if ($("#class-prev")) $("#class-prev").addEventListener("click", () => moveClass(-1));
-  if ($("#class-next")) $("#class-next").addEventListener("click", () => moveClass(1));
-
-  if (favoriteButton) {
-    favoriteButton.addEventListener("click", () => {
-      if (favorites.includes(currentClass)) {
-        favorites = favorites.filter(key => key !== currentClass);
-        showToast("已取消收藏。");
-      } else {
-        favorites.push(currentClass);
-        showToast(`已收藏「${classes[currentClass].name}」。`);
-      }
-      saveFavorites();
-      updateFavoritesUI();
-    });
-  }
-
-  function applyClassFilters() {
-    const cards = $$(".class-card");
-    let visibleCount = 0;
-
-    cards.forEach(card => {
-      const key = card.dataset.cardClass;
-      const data = classes[key];
-      const matchesType = activeClassFilter === "all" || data.type === activeClassFilter;
-      const query = classSearch.trim().toLocaleLowerCase();
-      const haystack = [data.name, data.english, data.description, data.role, ...data.badges, ...data.skills]
-        .join(" ")
-        .toLocaleLowerCase();
-      const matchesSearch = !query || haystack.includes(query);
-      const visible = matchesType && matchesSearch;
-
-      card.hidden = !visible;
-      if (visible) visibleCount++;
-    });
-
-    if ($("#class-empty")) $("#class-empty").hidden = visibleCount > 0;
-  }
-
-  $$("#classes [data-class-filter]").forEach(button => {
-    button.addEventListener("click", () => {
-      activeClassFilter = button.dataset.classFilter;
-      $$("#classes [data-class-filter]").forEach(item => {
-        item.classList.toggle("is-active", item === button);
-      });
-      applyClassFilters();
-    });
-  });
-
-  const classSearchInput = $("#class-search");
-  if (classSearchInput) {
-    classSearchInput.addEventListener("input", () => {
-      classSearch = classSearchInput.value;
-      applyClassFilters();
-    });
-  }
-
-  if ($("#class-reset")) {
-    $("#class-reset").addEventListener("click", () => {
-      activeClassFilter = "all";
-      classSearch = "";
-      if (classSearchInput) classSearchInput.value = "";
-      $$("#classes [data-class-filter]").forEach(button => {
-        button.classList.toggle("is-active", button.dataset.classFilter === "all");
-      });
-      applyClassFilters();
-    });
-  }
-
-  selectClass("knight");
-
-  /* 地圖區域 */
-
-  const regions = {
-    capital: {
-      index: "REGION 01 / 04",
-      name: "暮光王城",
-      english: "THE DUSK CAPITAL",
-      description: "曾經繁盛的王國中心，如今仍有守衛與旅人試圖在漫長黑夜中維持秩序。這裡是旅程的起點，也是尋找線索的重要據點。",
-      type: "安全區域",
-      level: "初階冒險者"
-    },
-    forest: {
-      index: "REGION 02 / 04",
-      name: "幽影森林",
-      english: "THE SHADOW FOREST",
-      description: "終年被濃霧籠罩的古老森林。扭曲的樹影間傳來奇異低語，失落的道路可能通往被遺忘的秘密。",
-      type: "探索區域",
-      level: "初階至中階"
-    },
-    ruins: {
-      index: "REGION 03 / 04",
-      name: "失落遺跡",
-      english: "THE FORGOTTEN RUINS",
-      description: "沉睡在歷史深處的古代遺址，斷裂的石柱與殘缺符文記錄著永夜以前的文明。",
-      type: "遺跡區域",
-      level: "中階冒險者"
-    },
-    abyss: {
-      index: "REGION 04 / 04",
-      name: "深淵邊境",
-      english: "THE ABYSS FRONTIER",
-      description: "光明難以抵達的危險邊境。傳聞黑暗力量從此處蔓延，唯有準備充分的冒險者才敢深入。",
-      type: "高危險區域",
-      level: "高階冒險者"
-    }
-  };
-
-  function selectRegion(key) {
-    const data = regions[key];
-    if (!data) return;
-
-    Object.entries({
-      "#region-index": data.index,
-      "#region-name": data.name,
-      "#region-english": data.english,
-      "#region-description": data.description,
-      "#region-type": data.type,
-      "#region-level": data.level
-    }).forEach(([selector, value]) => {
-      const element = $(selector);
-      if (element) element.textContent = value;
-    });
-
-    $$("[data-region]").forEach(button => {
-      const active = button.dataset.region === key;
-      button.classList.toggle("is-active", active);
-      if (button.matches(".region-option")) {
-        button.setAttribute("aria-pressed", String(active));
-      }
-    });
-  }
-
-  $$("[data-region]").forEach(button => {
-    button.addEventListener("click", () => selectRegion(button.dataset.region));
-  });
-
-  selectRegion("capital");
-
-  /* 公告搜尋與分類 */
-
-  let activeNewsFilter = "all";
-  let newsSearch = "";
-
-  function filterNews() {
-    const cards = $$("#news-grid .news-card");
-    let visibleCount = 0;
-
-    cards.forEach(card => {
-      const category = card.dataset.category;
-      const query = newsSearch.trim().toLocaleLowerCase();
-      const matchesCategory = activeNewsFilter === "all" || category === activeNewsFilter;
-      const matchesSearch = !query || card.textContent.toLocaleLowerCase().includes(query);
-      const visible = matchesCategory && matchesSearch;
-
-      card.hidden = !visible;
-      if (visible) visibleCount++;
-    });
-
-    if ($("#news-empty")) $("#news-empty").hidden = visibleCount > 0;
-    if ($("#news-count")) {
-      $("#news-count").textContent = `${String(visibleCount).padStart(2, "0")} RECORDS`;
-    }
-  }
-
-  $$("#news [data-news-filter]").forEach(button => {
-    button.addEventListener("click", () => {
-      activeNewsFilter = button.dataset.newsFilter;
-      $$("#news [data-news-filter]").forEach(item => {
-        item.classList.toggle("is-active", item === button);
-      });
-      filterNews();
-    });
-  });
-
-  if ($("#news-search")) {
-    $("#news-search").addEventListener("input", event => {
-      newsSearch = event.target.value;
-      filterNews();
-    });
-  }
-
-  filterNews();
-
-  /* 捲動淡入 */
-
-  const revealElements = $$(".reveal");
-
-  if ("IntersectionObserver" in window) {
-    const revealObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-revealed");
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px -25px 0px" });
-
-    revealElements.forEach(element => revealObserver.observe(element));
-  } else {
-    revealElements.forEach(element => element.classList.add("is-revealed"));
-  }
-
-  /* 返回頂部 */
-
-  const backToTop = $("#back-to-top");
-
-  function updateBackToTop() {
-    if (backToTop) backToTop.classList.toggle("is-visible", window.scrollY > 420);
-  }
-
-  window.addEventListener("scroll", updateBackToTop, { passive: true });
-  updateBackToTop();
-
-  if (backToTop) {
-    backToTop.addEventListener("click", () => {
-      window.scrollTo({
-        top: 0,
-        behavior: document.body.classList.contains("reduce-motion") ? "auto" : "smooth"
-      });
-    });
-  }
-
-  /* 背景音樂 */
-
-  const music = $("#bg-music");
-  const musicToggle = $("#music-toggle");
-  const musicLabel = $("#music-label");
-  let musicAllowed = true;
-
-  function updateMusicButton(playing) {
-    if (musicToggle) musicToggle.setAttribute("aria-pressed", String(playing));
-    if (musicLabel) musicLabel.textContent = playing ? "關閉音樂" : "播放音樂";
-  }
-
-  async function toggleMusic() {
-    if (!music || !musicAllowed) {
-      showToast("背景音樂目前已在設定中關閉。");
-      return;
-    }
-
-    if (!music.paused) {
-      music.pause();
-      updateMusicButton(false);
-      showToast("背景音樂已暫停。");
-      return;
-    }
-
-    try {
-      await music.play();
-      updateMusicButton(true);
-      showToast("背景音樂播放中。");
-    } catch (error) {
-      updateMusicButton(false);
-      if (error && error.name === "NotSupportedError") {
-        showToast("音樂格式不支援，請檢查 theme.mp3。");
-      } else {
-        showToast("無法播放音樂，請確認 assets/audio/theme.mp3 是否存在。");
-      }
-    }
-  }
-
-  if (musicToggle) musicToggle.addEventListener("click", toggleMusic);
-  if (music) {
-    music.addEventListener("play", () => updateMusicButton(true));
-    music.addEventListener("pause", () => updateMusicButton(false));
-    music.addEventListener("error", () => updateMusicButton(false));
-  }
-
-  /* 網站設定與瀏覽器本機儲存 */
-
-  const settingsDialog = $("#settings-dialog");
-  const settingsOpen = $("#settings-open");
-  const settingsClose = $("#settings-close");
-  const brightnessSetting = $("#brightness-setting");
-  const motionSetting = $("#motion-setting");
-  const musicSetting = $("#music-setting");
-  const settingsReset = $("#settings-reset");
-  const settingsSave = $("#settings-save");
-
-  const defaultSettings = {
-    brightness: 100,
-    reduceMotion: false,
-    musicAllowed: true
-  };
-
-  function readSettings() {
-    try {
-      const stored = JSON.parse(localStorage.getItem("eclipse-site-settings") || "null");
-      return stored && typeof stored === "object"
-        ? { ...defaultSettings, ...stored }
-        : { ...defaultSettings };
-    } catch {
-      return { ...defaultSettings };
-    }
-  }
-
-  let settings = readSettings();
-
-  function applySettings() {
-    const brightness = Math.max(70, Math.min(120, Number(settings.brightness) || 100));
-    document.documentElement.style.setProperty("--brightness", String(brightness / 100));
-    document.body.classList.toggle("reduce-motion", Boolean(settings.reduceMotion));
-    musicAllowed = Boolean(settings.musicAllowed);
-
-    if (brightnessSetting) brightnessSetting.value = String(brightness);
-    if (motionSetting) motionSetting.checked = Boolean(settings.reduceMotion);
-    if (musicSetting) musicSetting.checked = musicAllowed;
-
-    if (!musicAllowed && music && !music.paused) {
-      music.pause();
-      updateMusicButton(false);
-    }
-  }
-
-  function saveSettings() {
-    settings = {
-      brightness: brightnessSetting ? Number(brightnessSetting.value) : 100,
-      reduceMotion: motionSetting ? motionSetting.checked : false,
-      musicAllowed: musicSetting ? musicSetting.checked : true
-    };
-
-    applySettings();
-
-    try {
-      localStorage.setItem("eclipse-site-settings", JSON.stringify(settings));
-      showToast("網站設定已儲存於此瀏覽器。");
-    } catch {
-      showToast("設定已套用，但瀏覽器無法永久儲存。");
-    }
-  }
-
-  function openSettings() {
-    if (!settingsDialog) return;
-    applySettings();
-
-    if (typeof settingsDialog.showModal === "function") {
-      if (!settingsDialog.open) settingsDialog.showModal();
-    } else {
-      showToast("此瀏覽器不支援設定對話框。");
-    }
-  }
-
-  function closeSettings() {
-    if (settingsDialog && settingsDialog.open) settingsDialog.close();
-  }
-
-  if (settingsOpen) settingsOpen.addEventListener("click", openSettings);
-  if (settingsClose) settingsClose.addEventListener("click", closeSettings);
-  if (settingsSave) settingsSave.addEventListener("click", () => {
-    saveSettings();
-    closeSettings();
-  });
-
-  if (settingsReset) {
-    settingsReset.addEventListener("click", () => {
-      settings = { ...defaultSettings };
-      applySettings();
-      showToast("已恢復預設設定，按「完成設定」儲存。");
-    });
-  }
-
-  if (settingsDialog) {
-    settingsDialog.addEventListener("click", event => {
-      if (event.target === settingsDialog) closeSettings();
-    });
-  }
-
-  applySettings();
-
-  /* 頁尾年份 */
-
-  const year = $("#current-year");
-  if (year) year.textContent = String(new Date().getFullYear());
-
-  /* 鍵盤操作 */
+  $$("#main-nav a").forEach(link => link.addEventListener("click", closeMenu));
 
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
-      closeIntro();
-      setMenuOpen(false);
+      closeMenu();
+      closeSettings();
+      closeNews();
     }
   });
 
-  console.info("ECLIPSE ONLINE：網站互動功能初始化完成。");
+  // 職業資料：圖片沿用既有路徑。
+  const classes = {
+    knight: {
+      number: "CLASS 01",
+      name: "聖誓騎士",
+      role: "近戰防禦・守護者",
+      description: "以堅定信念守護同伴，揮舞重劍迎戰黑暗。騎士擁有強大的防禦能力，是隊伍最可靠的前線。",
+      image: "assets/images/knight.jpg",
+      alt: "騎士職業形象",
+      attack: 75, defense: 95, speed: 45, magic: 40,
+      tags: ["重甲", "守護", "近戰"]
+    },
+    assassin: {
+      number: "CLASS 02",
+      name: "暗影刺客",
+      role: "高速突襲・暗影獵手",
+      description: "行走於光影交界，以敏捷身法尋找敵人的破綻。刺客擅長高速攻擊與突襲，在敵人察覺之前決定勝負。",
+      image: "assets/images/assassin.jpg",
+      alt: "刺客職業形象",
+      attack: 90, defense: 45, speed: 98, magic: 35,
+      tags: ["雙刃", "潛行", "高速"]
+    },
+    mage: {
+      number: "CLASS 03",
+      name: "星蝕法師",
+      role: "遠距魔法・元素掌控",
+      description: "研究星辰與古代禁忌的施法者，將魔力化為毀滅性的力量。法師擅長遠距離攻擊，但需要注意自身防禦。",
+      image: "assets/images/mage.jpg",
+      alt: "法師職業形象",
+      attack: 88, defense: 35, speed: 55, magic: 100,
+      tags: ["魔法", "遠程", "元素"]
+    }
+  };
+
+  let currentClass = "knight";
+  const favoriteButton = $("#favorite-class");
+  const classArt = $("#class-art");
+
+  function updateFavoriteButton() {
+    const isFavorite = storage.get("eclipse-favorite-class") === currentClass;
+    if (!favoriteButton) return;
+    favoriteButton.classList.toggle("is-favorite", isFavorite);
+    favoriteButton.setAttribute("aria-pressed", String(isFavorite));
+    favoriteButton.textContent = isFavorite ? "★ 已收藏職業" : "☆ 收藏職業";
+  }
+
+  function showClass(key) {
+    const item = classes[key];
+    if (!item) return;
+    currentClass = key;
+
+    $$(".class-tab").forEach(tab => {
+      const active = tab.dataset.class === key;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-pressed", String(active));
+    });
+
+    if (classArt) {
+      classArt.style.opacity = "0.2";
+      const preload = new Image();
+      preload.onload = () => {
+        if (currentClass !== key) return;
+        classArt.src = item.image;
+        classArt.alt = item.alt;
+        classArt.style.opacity = "1";
+      };
+      preload.onerror = () => {
+        classArt.style.opacity = "1";
+        classArt.alt = item.alt + "（圖片載入失敗，請檢查圖片路徑）";
+        console.warn("職業圖片無法載入：", item.image);
+      };
+      preload.src = item.image;
+
+      // 圖片快取命中時 onload 仍會觸發；不改動原有圖片檔案。
+    }
+
+    $("#class-number").textContent = item.number;
+    $("#class-name").textContent = item.name;
+    $("#class-role").textContent = item.role;
+    $("#class-description").textContent = item.description;
+
+    ["attack", "defense", "speed", "magic"].forEach(stat => {
+      $(`#stat-${stat}`).style.width = `${item[stat]}%`;
+      $(`#${stat}-value`).textContent = item[stat];
+    });
+
+    $("#class-tags").replaceChildren(
+      ...item.tags.map(tag => {
+        const span = document.createElement("span");
+        span.textContent = tag;
+        return span;
+      })
+    );
+
+    updateFavoriteButton();
+  }
+
+  $$(".class-tab").forEach(tab => {
+    tab.addEventListener("click", () => showClass(tab.dataset.class));
+  });
+
+  favoriteButton?.addEventListener("click", () => {
+    const previous = storage.get("eclipse-favorite-class");
+    if (previous === currentClass) {
+      try {
+        localStorage.removeItem("eclipse-favorite-class");
+      } catch {
+        storage.set("eclipse-favorite-class", "");
+      }
+    } else {
+      storage.set("eclipse-favorite-class", currentClass);
+    }
+    updateFavoriteButton();
+  });
+
+  $("#random-class")?.addEventListener("click", () => {
+    const choices = Object.keys(classes).filter(key => key !== currentClass);
+    showClass(choices[Math.floor(Math.random() * choices.length)]);
+  });
+
+  // 區域互動地圖
+  const regions = {
+    north: {
+      code: "REGION 01 / NORTH",
+      name: "寒霜高地",
+      description: "永冬籠罩的北境，古老堡壘隱藏在冰雪與迷霧之中。傳聞有不滅的守望者徘徊於山脈深處。",
+      level: "建議等級：10–25",
+      danger: "★★★☆☆",
+      tags: ["冰雪", "古堡", "遺跡"]
+    },
+    east: {
+      code: "REGION 02 / EAST",
+      name: "失落王城",
+      description: "昔日王國的首都，如今只剩破碎的城牆與被時間遺忘的宮殿。古老王座仍等待著它真正的主人。",
+      level: "建議等級：25–40",
+      danger: "★★★★☆",
+      tags: ["王城", "歷史", "秘寶"]
+    },
+    south: {
+      code: "REGION 03 / SOUTH",
+      name: "深淵森林",
+      description: "濃霧終年不散的森林，樹木彷彿擁有自己的意志。深入其中的旅人，偶爾會聽見來自遠古的低語。",
+      level: "建議等級：15–35",
+      danger: "★★★★★",
+      tags: ["森林", "魔物", "迷霧"]
+    },
+    west: {
+      code: "REGION 04 / WEST",
+      name: "灰燼荒原",
+      description: "古代戰爭留下的焦土，黑色沙塵覆蓋了無數失落文明。荒原深處的裂隙，仍散發著不祥的光芒。",
+      level: "建議等級：30–50",
+      danger: "★★★★☆",
+      tags: ["荒原", "戰場", "深淵"]
+    }
+  };
+
+  $$(".map-point").forEach(button => {
+    button.addEventListener("click", () => {
+      const region = regions[button.dataset.region];
+      if (!region) return;
+
+      $$(".map-point").forEach(point => {
+        const active = point === button;
+        point.classList.toggle("active", active);
+        point.setAttribute("aria-pressed", String(active));
+      });
+
+      $("#region-code").textContent = region.code;
+      $("#region-name").textContent = region.name;
+      $("#region-description").textContent = region.description;
+      $("#region-level").textContent = region.level;
+      $("#region-danger").textContent = region.danger;
+      $("#region-tags").replaceChildren(
+        ...region.tags.map(tag => {
+          const span = document.createElement("span");
+          span.textContent = tag;
+          return span;
+        })
+      );
+    });
+  });
+
+  // 公告分類與搜尋
+  let activeFilter = "all";
+  const searchInput = $("#news-search");
+  const newsCards = $$(".news-card");
+  const newsEmpty = $("#news-empty");
+
+  function filterNews() {
+    const query = (searchInput?.value || "").trim().toLocaleLowerCase();
+    let visibleCount = 0;
+
+    newsCards.forEach(card => {
+      const categoryMatches = activeFilter === "all" || card.dataset.category === activeFilter;
+      const text = `${card.dataset.search || ""} ${card.textContent}`.toLocaleLowerCase();
+      const searchMatches = !query || text.includes(query);
+      const visible = categoryMatches && searchMatches;
+
+      card.hidden = !visible;
+      if (visible) visibleCount++;
+    });
+
+    if (newsEmpty) newsEmpty.hidden = visibleCount !== 0;
+  }
+
+  $$(".filter-button").forEach(button => {
+    button.addEventListener("click", () => {
+      activeFilter = button.dataset.filter;
+      $$(".filter-button").forEach(filter => {
+        const active = filter === button;
+        filter.classList.toggle("active", active);
+        filter.setAttribute("aria-pressed", String(active));
+      });
+      filterNews();
+    });
+  });
+
+  searchInput?.addEventListener("input", filterNews);
+
+  // 公告詳情視窗
+  const newsModal = $("#news-modal");
+  const newsModalTitle = $("#news-modal-title");
+  const newsModalContent = $("#news-modal-content");
+
+  function openNews(title, content) {
+    if (!newsModal) return;
+    newsModalTitle.textContent = title;
+    newsModalContent.textContent = content;
+    newsModal.classList.add("open");
+    newsModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    $("[data-close-news]", newsModal)?.focus();
+  }
+
+  function closeNews() {
+    if (!newsModal?.classList.contains("open")) return;
+    newsModal.classList.remove("open");
+    newsModal.setAttribute("aria-hidden", "true");
+    restoreBodyScroll();
+  }
+
+  $$(".read-news").forEach(button => {
+    button.addEventListener("click", () => {
+      openNews(button.dataset.title || "公告詳情", button.dataset.content || "");
+    });
+  });
+
+  $$("[data-close-news]").forEach(button => button.addEventListener("click", closeNews));
+
+  // 設定面板
+  const settingsPanel = $("#settings-panel");
+  const music = $("#bg-music");
+  const musicToggle = $("#music-toggle");
+  const motionToggle = $("#motion-toggle");
+  let musicEnabled = false;
+
+  function openSettings() {
+    if (!settingsPanel) return;
+    settingsPanel.classList.add("open");
+    settingsPanel.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    $("#close-settings")?.focus();
+  }
+
+  function closeSettings() {
+    if (!settingsPanel?.classList.contains("open")) return;
+    settingsPanel.classList.remove("open");
+    settingsPanel.setAttribute("aria-hidden", "true");
+    restoreBodyScroll();
+  }
+
+  $("#open-settings")?.addEventListener("click", () => {
+    closeMenu();
+    openSettings();
+  });
+
+  $("#close-settings")?.addEventListener("click", closeSettings);
+  $$("[data-close-settings]").forEach(button => button.addEventListener("click", closeSettings));
+
+  function restoreBodyScroll() {
+    const modalOpen = settingsPanel?.classList.contains("open") ||
+      newsModal?.classList.contains("open");
+    if (!modalOpen) document.body.style.overflow = "";
+  }
+
+  function updateMusicButton() {
+    if (!musicToggle) return;
+    musicToggle.textContent = musicEnabled ? "開啟中" : "關閉";
+    musicToggle.setAttribute("aria-pressed", String(musicEnabled));
+  }
+
+  async function toggleMusic() {
+    if (!music) return;
+
+    if (musicEnabled) {
+      music.pause();
+      musicEnabled = false;
+      updateMusicButton();
+      return;
+    }
+
+    music.volume = 0.35;
+    try {
+      await music.play();
+      musicEnabled = true;
+    } catch (error) {
+      musicEnabled = false;
+      console.warn("背景音樂無法播放，請確認音檔路徑：assets/audio/theme.mp3", error);
+      alert("目前無法播放音樂。請確認 assets/audio/theme.mp3 已上傳，而且檔案格式正確。");
+    }
+    updateMusicButton();
+  }
+
+  musicToggle?.addEventListener("click", toggleMusic);
+
+  // 若音訊因瀏覽器或系統原因停止，更新按鈕狀態。
+  music?.addEventListener("pause", () => {
+    if (music.ended) return;
+    musicEnabled = false;
+    updateMusicButton();
+  });
+
+  function setReducedMotion(enabled) {
+    document.body.classList.toggle("reduced-motion", enabled);
+    motionToggle?.setAttribute("aria-pressed", String(enabled));
+    if (motionToggle) motionToggle.textContent = enabled ? "開啟中" : "關閉";
+    storage.set("eclipse-reduced-motion", enabled ? "yes" : "no");
+  }
+
+  motionToggle?.addEventListener("click", () => {
+    setReducedMotion(!document.body.classList.contains("reduced-motion"));
+  });
+
+  $$("[data-text-size]").forEach(button => {
+    button.addEventListener("click", () => {
+      const size = button.dataset.textSize;
+      const scales = { small: "0.9", normal: "1", large: "1.12" };
+      document.documentElement.style.setProperty("--body-scale", scales[size] || "1");
+      storage.set("eclipse-text-size", size);
+
+      $$("[data-text-size]").forEach(item => {
+        item.setAttribute("aria-pressed", String(item === button));
+      });
+    });
+  });
+
+  // 還原瀏覽器中的個人設定
+  setReducedMotion(storage.get("eclipse-reduced-motion") === "yes");
+
+  const savedTextSize = storage.get("eclipse-text-size", "normal");
+  const textScales = { small: "0.9", normal: "1", large: "1.12" };
+  document.documentElement.style.setProperty(
+    "--body-scale",
+    textScales[savedTextSize] || "1"
+  );
+
+  $$("[data-text-size]").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.textSize === savedTextSize));
+  });
+
+  updateMusicButton();
+  showClass("knight");
+
+  // 區塊滾動淡入。瀏覽器不支援 IntersectionObserver 時直接顯示。
+  const revealItems = $$(".reveal");
+
+  if ("IntersectionObserver" in window &&
+      !document.body.classList.contains("reduced-motion")) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    revealItems.forEach(item => observer.observe(item));
+  } else {
+    revealItems.forEach(item => item.classList.add("is-visible"));
+  }
+
+  // 返回頂部
+  const backToTop = $("#back-to-top");
+
+  function updateScrollUI() {
+    backToTop?.classList.toggle("visible", window.scrollY > 500);
+  }
+
+  window.addEventListener("scroll", updateScrollUI, { passive: true });
+
+  backToTop?.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: document.body.classList.contains("reduced-motion") ? "auto" : "smooth"
+    });
+  });
+
+  updateScrollUI();
+
+  // 畫面變寬時收起手機選單
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) closeMenu();
+  });
+
+  // 點擊導覽後確保手機選單收起
+  $$("#main-nav a").forEach(link => link.addEventListener("click", () => {
+    closeMenu();
+  }));
 });
