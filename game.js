@@ -119,7 +119,12 @@
   }
 
   function startGame() {
-    if (gameOver || victory) resetBattle(false);
+    if (gameOver || victory) {
+  resetBattle(false);
+  state.hp = Math.max(1, Math.round(maxHP() * 0.7));
+  state.mp = maxMP();
+  updateHUD();
+}
     running = true;
     gameOver = false;
     victory = false;
