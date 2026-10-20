@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101017">
+  <title>試煉之地｜永夜紀元 ECLIPSE ONLINE</title>
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <header class="game-header">
+    <a class="brand" href="index.html">☾ 永夜紀元</a>
+    <span class="chapter">第一章・試煉之地</span>
+    <a class="back-link" href="index.html">返回主首頁 ↗</a>
+  </header>
+
+  <main class="game-layout">
+    <section class="game-main">
+      <div class="game-heading">
+        <div>
+          <p class="eyebrow">ECLIPSE ONLINE</p>
+          <h1>被遺忘的荒原</h1>
+          <p class="subheading">擊敗魔物，踏出成為傳奇的第一步。</p>
+        </div>
+        <div class="level-chip">LV. <span id="level">1</span></div>
+      </div>
+
+      <div class="arena-wrap">
+        <canvas id="arena" width="960" height="540"
+          aria-label="即時戰鬥區域"></canvas>
+        <div class="arena-message" id="arenaMessage">
+          <strong>試煉即將開始</strong>
+          <span>使用方向鍵移動，靠近魔物發動攻擊。</span>
+          <button id="startButton" class="primary-button">進入戰場</button>
+        </div>
+        <div class="arena-topline">
+          <span>荒原・第 1 區</span>
+          <span id="enemyCounter">魔物：0</span>
+        </div>
+        <div class="arena-toast" id="toast" role="status"></div>
+      </div>
+
+      <div class="combat-controls">
+        <button class="action-button" id="attackButton">
+          <span class="action-key">J</span><span>普通攻擊</span>
+        </button>
+        <button class="action-button skill-action" id="skillButton">
+          <span class="action-key">K</span><span>裂地斬</span>
+          <small id="skillCooldown">可使用</small>
+        </button>
+        <button class="action-button dodge-action" id="dodgeButton">
+          <span class="action-key">Shift</span><span>閃避</span>
+        </button>
+        <button class="action-button potion-action" id="potionButton">
+          <span class="action-key">H</span><span>生命藥水</span>
+          <small>×<span id="potionCount">3</span></small>
+        </button>
+      </div>
+      <p class="control-hint">電腦：WASD／方向鍵移動，J 攻擊，K 技能，Shift 閃避，H 喝藥水。手機：使用下方方向鍵與動作按鈕。</p>
+
+      <div class="mobile-controls">
+        <div class="dpad">
+          <button data-move="up" aria-label="向上">▲</button>
+          <button data-move="left" aria-label="向左">◀</button>
+          <button data-move="down" aria-label="向下">▼</button>
+          <button data-move="right" aria-label="向右">▶</button>
+        </div>
+        <p>移動</p>
+      </div>
+    </section>
+
+    <aside class="side-panel">
+      <section class="panel character-panel">
+        <p class="panel-label">冒險者資料</p>
+        <div class="character-profile">
+          <img src="assets/images/knight.jpg" alt="騎士角色">
+          <div><h2>暗影騎士</h2><p>近戰職業・守護者</p></div>
+        </div>
+        <div class="stat-row"><span>生命值 HP</span><strong id="hpText">120 / 120</strong></div>
+        <div class="bar"><span id="hpBar" class="hp-bar"></span></div>
+        <div class="stat-row"><span>魔力 MP</span><strong id="mpText">40 / 40</strong></div>
+        <div class="bar"><span id="mpBar" class="mp-bar"></span></div>
+        <div class="stat-grid">
+          <div><span>攻擊力</span><strong id="attackStat">18</strong></div>
+          <div><span>防禦力</span><strong id="defenseStat">5</strong></div>
+          <div><span>經驗值</span><strong id="xpText">0 / 100</strong></div>
+          <div><span>金幣</span><strong id="goldText">0</strong></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title-row"><p class="panel-label">當前任務</p><span class="quest-mark">主線</span></div>
+        <h3>荒原清剿</h3>
+        <p class="quest-description">擊敗 5 隻荒原魔物，證明你的實力。</p>
+        <div class="quest-progress"><span id="questBar"></span></div>
+        <p class="quest-count" id="questText">擊敗魔物：0 / 5</p>
+        <p id="questReward" class="quest-reward">獎勵：80 EXP、50 金幣</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title-row">
+          <p class="panel-label">戰鬥紀錄</p>
+          <button id="clearLog" class="text-button">清除</button>
+        </div>
+        <div id="battleLog" class="battle-log" aria-live="polite">
+          <p>旅程即將開始……</p>
+        </div>
+      </section>
+
+      <section class="panel save-panel">
+        <div><strong>冒險進度</strong><p id="saveStatus">本機存檔已啟用</p></div>
+        <button id="saveButton" class="secondary-button">儲存進度</button>
+        <button id="resetButton" class="text-button danger-text">重新開始</button>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="game-footer">ECLIPSE ONLINE · 永夜紀元 — 試煉版本</footer>
+  <script src="game.js"></script>
+</body>
+</html>
