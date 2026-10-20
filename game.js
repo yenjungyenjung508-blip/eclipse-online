@@ -667,9 +667,13 @@
     const dt = Math.min((now - lastTime) / 1000, 0.04);
     lastTime = now;
 
+    
     movePlayer(dt);
     updateEnemies(dt, now);
     updateParticles(dt);
+
+    // 魔力自然恢復：每秒恢復 3 點 MP
+    state.mp = Math.min(maxMP(), state.mp + 3 * dt);
 
     spawnTimer += dt;
     if (enemies.length < 3 && state.kills < 5 && spawnTimer > 3.2) {
