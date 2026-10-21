@@ -264,45 +264,54 @@
   }
 
 
+
 function killEnemy(enemy) {
   if (enemy.dead) return;
-  enemy.dead = true;
 
-  // 記錄擊殺數
+  enemy.dead = true;
   state.kills++;
 
-  // 根據魔物種類決定獎勵
-  const rewardXP = Number.isFinite(enemy.xp) ? enemy.xp : 25;
-  const goldMin = Number.isFinite(enemy.goldMin) ? enemy.goldMin : 10;
-  const goldMax = Number.isFinite(enemy.goldMax) ? enemy.goldMax : 20;
-  const rewardGold =
-    goldMin + Math.floor(Math.random() * (goldMax - goldMin + 1));
+  var rewardXP = Number.isFinite(enemy.xp) ? enemy.xp : 25;
+  var goldMin = Number.isFinite(enemy.goldMin) ? enemy.goldMin : 10;
+  var goldMax = Number.isFinite(enemy.goldMax) ? enemy.goldMax : 20;
+
+  var rewardGold = goldMin + Math.floor(
+    Math.random() * (goldMax - goldMin + 1)
+  );
 
   state.gold += rewardGold;
   gainXP(rewardXP);
 
-  // 不同魔物使用不同擊殺特效
-  const effectColor = enemy.rare
-    ? "#ff63e6"
-    : enemy.name === "腐朽戰士"
-      ? "#aeb8c8"
-      : "#c9a4ff";
+  var effectColor = "#c9a4ff";
 
-  burst(enemy.x, enemy.y, effectColor, enemy.rare ? 32 : 18);
+  if (enemy.rare) {
+    effectColor = "#ff63e6";
+  } else if (enemy.name === "腐朽戰士") {
+    effectColor = "#aeb8c8";
+  }
 
-  // 顯示對應魔物名稱與獎勵
-  const enemyName = enemy.name || "荒原魔物";
-  const rareText = enemy.rare ? "【稀有魔物】" : "";
+  burst(
+    enemy.x,
+    enemy.y,
+    effectColor,
+    enemy.rare ? 32 : 18
+  );
+
+  var enemyName = enemy.name || "荒原魔物";
+  var rareText = enemy.rare ? "【稀有魔物】" : "";
 
   log(
-    `${rareText}${enemyName}被擊敗！獲得 ${rewardXP} EXP、${rewardGold} 金幣。`
+    rareText + enemyName + "被擊敗！獲得 " +
+    rewardXP + " EXP、" + rewardGold + " 金幣。"
   );
 
   if (enemy.rare) {
-    toast(`稀有魔物擊敗！獲得 ${rewardXP} EXP、${rewardGold} 金幣`);
+    toast(
+      "稀有魔物擊敗！獲得 " +
+      rewardXP + " EXP、" + rewardGold + " 金幣"
+    );
   }
 
-  // 主線任務：擊敗 5 隻魔物
   if (state.kills >= 5 && !state.questClaimed) {
     state.questClaimed = true;
     state.gold += 50;
@@ -312,10 +321,10 @@ function killEnemy(enemy) {
     toast("任務完成：荒原清剿");
   }
 
-  // 移除已死亡魔物
-  enemies = enemies.filter(e => !e.dead);
+  enemies = enemies.filter(function (e) {
+    return !e.dead;
+  });
 
-  // 更新畫面與保存進度
   updateHUD();
   saveGame(false);
 }
