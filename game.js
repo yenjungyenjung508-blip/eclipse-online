@@ -827,21 +827,38 @@ function drawEnemy(enemy) {
     touchMove.clear();
   });
 
-  // 觸控移動按鈕
+  // 手機、iPad 觸控方向鍵
   document.querySelectorAll("[data-move]").forEach(button => {
     const direction = button.dataset.move;
-    const down = (event) => {
+    let activePointer = null;
+
+    button.addEventListener("pointerdown", event => {
       event.preventDefault();
+
+      activePointer = event.pointerId;
       touchMove.add(direction);
-    };
-    const up = (event) => {
-      event.preventDefault();
+
+      if (button.setPointerCapture) {
+        button.setPointerCapture(event.pointerId);
+      }
+    });
+
+    const releaseMove = event => {
+      if (
+        activePointer !== null &&
+        event.pointerId !== undefined &&
+        event.pointerId !== activePointer
+      ) {
+        return;
+      }
+
       touchMove.delete(direction);
+      activePointer = null;
     };
-    button.addEventListener("pointerdown", down);
-    button.addEventListener("pointerup", up);
-    button.addEventListener("pointercancel", up);
-    button.addEventListener("pointerleave", up);
+
+    button.addEventListener("pointerup", releaseMove);
+    button.addEventListener("pointercancel", releaseMove);
+    button.addEventListener("lostpointercapture", releaseMove);
   });
 
   $("startButton").addEventListener("click", startGame);
