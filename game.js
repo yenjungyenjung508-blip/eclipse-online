@@ -741,42 +741,6 @@ function drawEnemy(enemy) {
   ctx.restore();
 }
 
-    ctx.fillStyle = now < e.flashUntil ? "#fff" : "#55426c";
-    ctx.beginPath();
-    ctx.moveTo(x, y - 23);
-    ctx.lineTo(x + 18, y - 8);
-    ctx.lineTo(x + 14, y + 11);
-    ctx.lineTo(x, y + 18);
-    ctx.lineTo(x - 14, y + 11);
-    ctx.lineTo(x - 18, y - 8);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = "#ac81cb";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // 角與眼睛
-    ctx.fillStyle = "#b3a0d0";
-    ctx.beginPath();
-    ctx.moveTo(x - 10, y - 14);
-    ctx.lineTo(x - 18, y - 28);
-    ctx.lineTo(x - 4, y - 19);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(x + 10, y - 14);
-    ctx.lineTo(x + 18, y - 28);
-    ctx.lineTo(x + 4, y - 19);
-    ctx.fill();
-    ctx.fillStyle = "#ff6d87";
-    ctx.fillRect(x - 8, y - 7, 5, 3);
-    ctx.fillRect(x + 3, y - 7, 5, 3);
-
-    ctx.fillStyle = "#15121b";
-    ctx.fillRect(x - 22, y - 39, 44, 5);
-    ctx.fillStyle = "#d65d75";
-    ctx.fillRect(x - 22, y - 39, 44 * Math.max(0, e.hp / e.maxHp), 5);
-  }
-
   function drawParticles() {
     for (const p of particles) {
       ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
