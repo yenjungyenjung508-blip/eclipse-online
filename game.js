@@ -600,13 +600,102 @@
     ctx.fillRect(x - 22, y - 42, 44 * (state.hp / maxHP()), 5);
   }
 
-  function drawEnemy(e) {
-    const now = performance.now();
-    const x = e.x, y = e.y + Math.sin(e.phase) * 2;
-    ctx.fillStyle = "#07070db0";
+  
+function drawEnemy(enemy) {
+  ctx.save();
+
+  // 魔物受傷時閃白光
+  const hurt = enemy.hitFlash && enemy.hitFlash > 0;
+  const color = hurt ? "#ffffff" : (enemy.color || "#76509b");
+
+  // 魔物腳下的暗影
+  ctx.globalAlpha = 0.28;
+  ctx.fillStyle = "#000000";
+  ctx.beginPath();
+  ctx.ellipse(enemy.x, enemy.y + enemy.r * 0.72, enemy.r * 1.2, enemy.r * 0.42, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // 稀有魔物的紫紅色光環
+  if (enemy.rare) {
+    ctx.strokeStyle = "#ff63e6";
+    ctx.lineWidth = 3;
+    ctx.globalAlpha = 0.7 + Math.sin(performance.now() / 180) * 0.25;
     ctx.beginPath();
-    ctx.ellipse(x, y + 12, 21, 8, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.arc(enemy.x, enemy.y, enemy.r + 7, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  // 魔物本體
+  ctx.fillStyle = color;
+  ctx.beginPath();
+
+  if (enemy.name === "暗影小鬼") {
+    // 小鬼：尖耳朵、圓形身體
+    ctx.moveTo(enemy.x - enemy.r * 0.65, enemy.y - enemy.r * 0.25);
+    ctx.lineTo(enemy.x - enemy.r * 1.05, enemy.y - enemy.r * 1.15);
+    ctx.lineTo(enemy.x - enemy.r * 0.12, enemy.y - enemy.r * 0.72);
+    ctx.arc(enemy.x, enemy.y, enemy.r * 0.75, 0, Math.PI * 2);
+    ctx.moveTo(enemy.x + enemy.r * 0.65, enemy.y - enemy.r * 0.25);
+    ctx.lineTo(enemy.x + enemy.r * 1.05, enemy.y - enemy.r * 1.15);
+    ctx.lineTo(enemy.x + enemy.r * 0.12, enemy.y - enemy.r * 0.72);
+  } else if (enemy.name === "腐朽戰士") {
+    // 戰士：厚重的菱角盔甲
+    ctx.moveTo(enemy.x, enemy.y - enemy.r * 1.1);
+    ctx.lineTo(enemy.x + enemy.r * 0.85, enemy.y - enemy.r * 0.45);
+    ctx.lineTo(enemy.x + enemy.r * 0.72, enemy.y + enemy.r * 0.65);
+    ctx.lineTo(enemy.x, enemy.y + enemy.r);
+    ctx.lineTo(enemy.x - enemy.r * 0.72, enemy.y + enemy.r * 0.65);
+    ctx.lineTo(enemy.x - enemy.r * 0.85, enemy.y - enemy.r * 0.45);
+    ctx.closePath();
+  } else {
+    // 永夜獵手：稀有的星芒形魔物
+    for (let i = 0; i < 10; i++) {
+      const angle = -Math.PI / 2 + i * Math.PI / 5;
+      const radius = i % 2 === 0 ? enemy.r * 1.15 : enemy.r * 0.62;
+      const x = enemy.x + Math.cos(angle) * radius;
+      const y = enemy.y + Math.sin(angle) * radius;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
+
+  ctx.fill();
+
+  // 發光邊框
+  ctx.strokeStyle = enemy.rare ? "#ff9cf0" : "#c4a8ff";
+  ctx.lineWidth = enemy.rare ? 2.5 : 1.5;
+  ctx.stroke();
+
+  // 眼睛
+  ctx.fillStyle = "#fff4cc";
+  ctx.beginPath();
+  ctx.arc(enemy.x - enemy.r * 0.28, enemy.y - enemy.r * 0.08, 2.2, 0, Math.PI * 2);
+  ctx.arc(enemy.x + enemy.r * 0.28, enemy.y - enemy.r * 0.08, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 魔物名稱
+  ctx.font = enemy.rare ? "bold 13px sans-serif" : "12px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = enemy.rare ? "#ff9cf0" : "#f0e7ff";
+  ctx.fillText(enemy.name || "魔物", enemy.x, enemy.y - enemy.r - 13);
+
+  // 血條
+  const barWidth = enemy.r * 2.3;
+  const barHeight = 5;
+  const barX = enemy.x - barWidth / 2;
+  const barY = enemy.y - enemy.r - 8;
+  const ratio = Math.max(0, Math.min(1, enemy.hp / enemy.maxHp));
+
+  ctx.fillStyle = "#321c2b";
+  ctx.fillRect(barX, barY, barWidth, barHeight);
+  ctx.fillStyle = enemy.rare ? "#ff4fcb" : "#e65c67";
+  ctx.fillRect(barX, barY, barWidth * ratio, barHeight);
+
+  ctx.restore();
+}
 
     ctx.fillStyle = now < e.flashUntil ? "#fff" : "#55426c";
     ctx.beginPath();
