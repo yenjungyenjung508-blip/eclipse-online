@@ -20,7 +20,8 @@ const freshState = () => ({
   potions: 3,
   kills: 0,
   questClaimed: false,
-
+bossDefeated: false,
+bossSpawned: false
   // 新增：裝備系統資料
   inventory: [],
   equippedWeapon: null,
@@ -456,6 +457,39 @@ const freshState = () => ({
       };
     }
 
+  // ===== 第一章 Boss：永夜深淵領主 =====
+  function createBoss() {
+    if (state.bossDefeated || enemies.some(e => e.isBoss)) return;
+
+    const bossHP = 950 + (state.level - 1) * 180;
+
+    enemies.push({
+      name: "永夜深淵領主",
+      isBoss: true,
+      rare: true,
+      r: 32,
+      x: W - 95,
+      y: H * 0.5,
+      hp: bossHP,
+      maxHp: bossHP,
+      speed: 34 + state.level * 1.2,
+      damage: 19 + Math.floor(state.level * 1.5),
+      xp: 250,
+      goldMin: 100,
+      goldMax: 160,
+      color: "#d83d87",
+      attackAt: 0,
+      flashUntil: 0,
+      dead: false,
+      phase: 0,
+      bossAnnounced: true
+    });
+
+    state.bossSpawned = true;
+    log("警告！永夜深淵領主降臨荒原！");
+    toast("Boss 降臨：永夜深淵領主");
+    saveGame(false);
+  }
     const x = W - 65;
     const y = 90 + Math.random() * (H - 180);
     const hp = Math.round(type.hp * scale);
@@ -486,9 +520,9 @@ const freshState = () => ({
     gameOver = false;
     victory = false;
     $("arenaMessage").classList.add("hidden");
-    if (enemies.length === 0) {
-      for (let i = 0; i < 3; i++) createEnemy();
-    }
+    if (enemies.length === 0 && state.kills < 5) {
+  for (let i = 0; i < 3; i++) createEnemy();
+}
     log("你踏入荒原。魔物正在靠近！");
     lastTime = performance.now();
     requestAnimationFrame(loop);
@@ -583,8 +617,37 @@ function killEnemy(enemy) {
   );
 
   state.gold += rewardGold;
+  
+  state.gold += rewardGold;
   gainXP(rewardXP);
-rollEquipmentDrop(enemy);
+
+  // Boss 專屬獎勵：保證掉落史詩裝備
+  if (enemy.isBoss) {
+    state.bossDefeated = true;
+    state.bossSpawned = true;
+
+    state.gold += 300;
+    gainXP(500);
+
+    const bossWeapon = {
+      name: "深淵裁決者",
+      type: "weapon",
+      attack: 22,
+      defense: 0,
+      rarity: "傳說",
+      color: "#ff63e6",
+      id: Date.now() + Math.random()
+    };
+
+    state.inventory.push(bossWeapon);
+
+    log("深淵領主已被擊敗！額外獲得 500 EXP、300 金幣！");
+    log("傳說裝備掉落：【深淵裁決者】攻擊 +22！");
+    toast("Boss 擊敗！獲得傳說武器！");
+    renderEquipmentUI();
+  } else {
+    rollEquipmentDrop(enemy);
+  }
   var effectColor = "#c9a4ff";
 
   if (enemy.rare) {
@@ -753,12 +816,37 @@ rollEquipmentDrop(enemy);
       const dx = player.x - e.x;
       const dy = player.y - e.y;
       const distance = Math.hypot(dx, dy) || 1;
+      
+      const enraged = e.isBoss && e.hp <= e.maxHp * 0.5;
+      const moveSpeed = e.speed * (enraged ? 1.75 : 1);
+      const attackDamage = e.damage * (enraged ? 1.4 : 1);
+
       if (distance > player.r + e.r + 5) {
-        e.x += dx / distance * e.speed * dt;
-        e.y += dy / distance * e.speed * dt;
+        e.x += dx / distance * moveSpeed * dt;
+        e.y += dy / distance * moveSpeed * dt;
       } else if (now > e.attackAt) {
-        e.attackAt = now + 1050;
-        damagePlayer(e.damage);
+        e.attackAt = now + (e.isBoss ? (enraged ? 600 : 900) : 1050);
+        damagePlayer(Math.round(attackDamage));
+      }
+
+      // Boss 每隔一段時間發動範圍震擊
+      if (e.isBoss) {
+        if (!e.specialAt) e.specialAt = now + 3500;
+
+        if (now >= e.specialAt) {
+          e.specialAt = now + (enraged ? 3000 : 4500);
+
+          burst(e.x, e.y, "#ff3d96", 30);
+          log(enraged
+            ? "深淵領主狂暴震擊！"
+            : "深淵領主釋放深淵震擊！");
+
+          if (distance < (enraged ? 165 : 125)) {
+            damagePlayer(enraged ? 28 : 18);
+          } else {
+            toast("成功躲開 Boss 的範圍攻擊！");
+          }
+        }
       }
       e.x = clamp(e.x, 24, W - 24);
       e.y = clamp(e.y, 60, H - 24);
@@ -1055,11 +1143,58 @@ function drawEnemy(enemy) {
     ctx.globalAlpha = 1;
   }
 
+  
   function draw() {
     drawBackground();
+
     for (const e of enemies) drawEnemy(e);
+
     drawKnight();
     drawParticles();
+
+    // Boss 專屬血條
+    const boss = enemies.find(e => e.isBoss && !e.dead);
+
+    if (boss) {
+      const barWidth = Math.min(W - 60, 440);
+      const barX = (W - barWidth) / 2;
+      const barY = 24;
+      const ratio = Math.max(0, boss.hp / boss.maxHp);
+
+      ctx.save();
+
+      ctx.textAlign = "center";
+      ctx.font = "bold 17px sans-serif";
+      ctx.fillStyle = "#ffd4ef";
+      ctx.fillText("永夜深淵領主", W / 2, 17);
+
+      ctx.fillStyle = "#1b101d";
+      ctx.fillRect(barX, barY, barWidth, 15);
+
+      const gradient = ctx.createLinearGradient(
+        barX, 0, barX + barWidth, 0
+      );
+      gradient.addColorStop(0, "#8c164f");
+      gradient.addColorStop(1, "#ff63c3");
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(barX, barY, barWidth * ratio, 15);
+
+      ctx.strokeStyle = "#ffd0ed";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(barX, barY, barWidth, 15);
+
+      ctx.font = "12px sans-serif";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(
+        `${Math.ceil(boss.hp)} / ${boss.maxHp}` +
+        (ratio <= 0.5 ? "  ・狂暴中" : ""),
+        W / 2,
+        54
+      );
+
+      ctx.restore();
+    }
   }
 
   function loop(now) {
@@ -1081,6 +1216,15 @@ function drawEnemy(enemy) {
       spawnTimer = 0;
     }
 
+    // 完成五次擊殺與荒原任務後，等待普通魔物清空，再召喚 Boss
+    if (
+      state.kills >= 5 &&
+      state.questClaimed &&
+      enemies.length === 0 &&
+      !state.bossDefeated
+    ) {
+      createBoss();
+    }
     if (toastTimer > 0) {
       toastTimer -= dt;
       if (toastTimer <= 0) $("toast").classList.remove("visible");
@@ -1094,9 +1238,17 @@ function drawEnemy(enemy) {
     updateHUD();
     draw();
 
-    if (state.kills >= 5 && state.questClaimed && enemies.length === 0) {
+    
+    if (
+      state.bossDefeated &&
+      enemies.length === 0 &&
+      !victory
+    ) {
       victory = true;
-      showEnd("試煉完成", "荒原已暫時恢復平靜。你已完成第一個主線任務！");
+      showEnd(
+        "第一章完成",
+        "你擊敗了永夜深淵領主，荒原的黑暗暫時退去！"
+      );
       saveGame(false);
       return;
     }
