@@ -1316,11 +1316,24 @@ function drawEnemy(enemy) {
     button.addEventListener("lostpointercapture", releaseMove);
   });
 
-  $("startButton").addEventListener("click", startGame);
-  $("attackButton").addEventListener("click", normalAttack);
-  $("skillButton").addEventListener("click", useSkill);
-  $("dodgeButton").addEventListener("click", dodge);
-  $("potionButton").addEventListener("click", usePotion);
+  
+  // 安全綁定遊戲按鈕，避免個別按鈕不存在時中斷初始化
+  function bindButton(id, handler) {
+    const button = $(id);
+
+    if (!button) {
+      console.error(`[永夜紀元] 找不到按鈕：#${id}`);
+      return;
+    }
+
+    button.addEventListener("click", handler);
+  }
+
+  bindButton("startButton", startGame);
+  bindButton("attackButton", normalAttack);
+  bindButton("skillButton", useSkill);
+  bindButton("dodgeButton", dodge);
+  bindButton("potionButton", usePotion);
   $("saveButton").addEventListener("click", () => saveGame(true));
   $("clearLog").addEventListener("click", () => {
     $("battleLog").replaceChildren();
