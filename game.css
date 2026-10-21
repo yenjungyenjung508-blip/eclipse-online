@@ -204,3 +204,38 @@ button,
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
+
+/* ===== iPhone / iPad 防止遊戲連點放大 ===== */
+
+html,
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* 遊戲操作區禁止瀏覽器手勢 */
+.mobile-controls,
+.dpad,
+.dpad button,
+.combat-controls,
+.combat-controls button,
+.action-button,
+#arena {
+  touch-action: none !important;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* 避免按鈕被瀏覽器當成文字或手勢操作 */
+button {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* 避免雙擊選取文字 */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
