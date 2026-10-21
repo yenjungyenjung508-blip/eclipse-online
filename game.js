@@ -10,16 +10,22 @@
   const H = canvas.height;
   const SAVE_KEY = "eclipseTrialSaveV1";
 
-  const freshState = () => ({
-    level: 1,
-    xp: 0,
-    gold: 0,
-    hp: 120,
-    mp: 40,
-    potions: 3,
-    kills: 0,
-    questClaimed: false
-  });
+  
+const freshState = () => ({
+  level: 1,
+  xp: 0,
+  gold: 0,
+  hp: 120,
+  mp: 40,
+  potions: 3,
+  kills: 0,
+  questClaimed: false,
+
+  // 新增：裝備系統資料
+  inventory: [],
+  equippedWeapon: null,
+  equippedArmor: null
+});
 
   let saved = null;
   try {
@@ -104,6 +110,304 @@
   function xpNeeded() { return state.level * 100; }
 
   
+  // ===== 永夜紀元：裝備系統 =====
+
+  const equipmentCatalog = [
+    {
+      name: "生鏽長劍",
+      type: "weapon",
+      attack: 3,
+      defense: 0,
+      rarity: "普通",
+      color: "#d5d5d5"
+    },
+    {
+      name: "荒原騎士劍",
+      type: "weapon",
+      attack: 7,
+      defense: 0,
+      rarity: "稀有",
+      color: "#65c7ff"
+    },
+    {
+      name: "永夜斬魂劍",
+      type: "weapon",
+      attack: 13,
+      defense: 0,
+      rarity: "史詩",
+      color: "#d18aff"
+    },
+    {
+      name: "破損鐵甲",
+      type: "armor",
+      attack: 0,
+      defense: 2,
+      rarity: "普通",
+      color: "#d5d5d5"
+    },
+    {
+      name: "守夜者重甲",
+      type: "armor",
+      attack: 0,
+      defense: 5,
+      rarity: "稀有",
+      color: "#65c7ff"
+    },
+    {
+      name: "不朽誓約鎧甲",
+      type: "armor",
+      attack: 0,
+      defense: 9,
+      rarity: "史詩",
+      color: "#d18aff"
+    }
+  ];
+
+  function syncEquipmentStats() {
+    const weapon = state.equippedWeapon;
+    const armor = state.equippedArmor;
+
+    player.attack =
+      18 + (state.level - 1) * 4 +
+      (weapon ? weapon.attack : 0);
+
+    player.defense =
+      5 + (state.level - 1) +
+      (armor ? armor.defense : 0);
+  }
+
+  function rollEquipmentDrop(enemy) {
+    // 普通魔物 18% 掉落率，稀有魔物 55%
+    const chance = enemy.rare ? 0.55 : 0.18;
+
+    if (Math.random() >= chance) {
+      log("沒有發現裝備掉落。");
+      return;
+    }
+
+    let pool = equipmentCatalog;
+
+    // 稀有魔物有較高機會掉落史詩裝備
+    const roll = Math.random();
+    if (enemy.rare && roll < 0.35) {
+      pool = equipmentCatalog.filter(item => item.rarity === "史詩");
+    } else if (roll < 0.35) {
+      pool = equipmentCatalog.filter(item => item.rarity !== "史詩");
+    }
+
+    const item = {
+      ...pool[Math.floor(Math.random() * pool.length)],
+      id: Date.now() + Math.random()
+    };
+
+    state.inventory.push(item);
+
+    log(
+      `獲得裝備：【${item.rarity}】${item.name}！` +
+      `攻擊 +${item.attack}，防禦 +${item.defense}。`
+    );
+
+    toast(`裝備掉落：${item.name}`);
+    renderEquipmentUI();
+    saveGame(false);
+  }
+
+  function equipItem(id) {
+    const index = state.inventory.findIndex(item => item.id === id);
+    if (index < 0) return;
+
+    const item = state.inventory[index];
+    const slot = item.type === "weapon"
+      ? "equippedWeapon"
+      : "equippedArmor";
+
+    // 把舊裝備放回背包
+    if (state[slot]) {
+      state.inventory.push(state[slot]);
+    }
+
+    state[slot] = item;
+    state.inventory.splice(index, 1);
+
+    syncEquipmentStats();
+    updateHUD();
+    renderEquipmentUI();
+    saveGame(false);
+
+    toast(`已裝備：${item.name}`);
+    log(`裝備更新：${item.name}。`);
+  }
+
+  function unequipItem(slot) {
+    const item = state[slot];
+    if (!item) return;
+
+    state.inventory.push(item);
+    state[slot] = null;
+
+    syncEquipmentStats();
+    updateHUD();
+    renderEquipmentUI();
+    saveGame(false);
+
+    toast(`已卸下：${item.name}`);
+  }
+
+  function createEquipmentUI() {
+    if ($("equipmentPanel")) return;
+
+    const style = document.createElement("style");
+    style.textContent = `
+      #equipmentPanel {
+        margin: 18px 0;
+        padding: 18px;
+        color: #eee7f7;
+        background: linear-gradient(145deg, #211b30, #12111b);
+        border: 1px solid #655079;
+        border-radius: 14px;
+        font-family: sans-serif;
+      }
+      #equipmentPanel h3 {
+        margin: 0 0 12px;
+        color: #e6c98b;
+      }
+      #equipmentPanel .equipment-slots {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      #equipmentPanel .equipment-slot,
+      #equipmentPanel .equipment-item {
+        padding: 12px;
+        background: #ffffff09;
+        border: 1px solid #ffffff20;
+        border-radius: 10px;
+        min-width: 0;
+      }
+      #equipmentPanel .equipment-item {
+        margin-top: 8px;
+      }
+      #equipmentPanel .equipment-name {
+        color: #e6c98b;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+      }
+      #equipmentPanel .equipment-stats {
+        margin: 6px 0;
+        color: #bfb5d1;
+        font-size: 13px;
+      }
+      #equipmentPanel button {
+        padding: 8px 12px;
+        border: 1px solid #a68bc8;
+        border-radius: 8px;
+        background: #49345e;
+        color: white;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      #equipmentPanel .equipment-empty {
+        color: #a69bb6;
+        font-size: 13px;
+      }
+      #equipmentPanel .equipment-inventory {
+        max-height: 260px;
+        overflow-y: auto;
+      }
+      @media (max-width: 600px) {
+        #equipmentPanel { padding: 12px; }
+        #equipmentPanel .equipment-slots {
+          grid-template-columns: 1fr;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    const panel = document.createElement("section");
+    panel.id = "equipmentPanel";
+    panel.innerHTML = `
+      <h3>⚔ 裝備與背包</h3>
+      <div class="equipment-slots">
+        <div class="equipment-slot">
+          <strong>武器</strong>
+          <div id="equippedWeaponView"></div>
+        </div>
+        <div class="equipment-slot">
+          <strong>防具</strong>
+          <div id="equippedArmorView"></div>
+        </div>
+      </div>
+      <div>
+        <strong>背包裝備</strong>
+        <div id="equipmentInventory" class="equipment-inventory"></div>
+      </div>
+    `;
+
+    const anchor = $("arena");
+    if (anchor) {
+      anchor.insertAdjacentElement("afterend", panel);
+    } else {
+      document.body.appendChild(panel);
+    }
+
+    renderEquipmentUI();
+  }
+
+  function renderEquipmentUI() {
+    const panel = $("equipmentPanel");
+    if (!panel) return;
+
+    function slotHTML(item, slot) {
+      if (!item) {
+        return `<p class="equipment-empty">尚未裝備</p>`;
+      }
+
+      return `
+        <div class="equipment-name">${item.name}</div>
+        <div class="equipment-stats">
+          ${item.rarity}｜攻擊 +${item.attack}｜防禦 +${item.defense}
+        </div>
+        <button data-unequip="${slot}">卸下裝備</button>
+      `;
+    }
+
+    $("equippedWeaponView").innerHTML =
+      slotHTML(state.equippedWeapon, "equippedWeapon");
+
+    $("equippedArmorView").innerHTML =
+      slotHTML(state.equippedArmor, "equippedArmor");
+
+    const inventory = $("equipmentInventory");
+
+    if (!state.inventory.length) {
+      inventory.innerHTML =
+        `<p class="equipment-empty">背包目前沒有裝備。擊敗魔物尋找戰利品！</p>`;
+    } else {
+      inventory.innerHTML = state.inventory.map((item, index) => `
+        <div class="equipment-item">
+          <div class="equipment-name">${item.name}</div>
+          <div class="equipment-stats">
+            ${item.rarity}｜${item.type === "weapon" ? "武器" : "防具"}
+            ｜攻擊 +${item.attack}｜防禦 +${item.defense}
+          </div>
+          <button data-equip-index="${index}">裝備</button>
+        </div>
+      `).join("");
+    }
+
+    panel.querySelectorAll("[data-equip-index]").forEach(button => {
+      button.onclick = () => {
+        const index = Number(button.dataset.equipIndex);
+        const item = state.inventory[index];
+        if (item) equipItem(item.id);
+      };
+    });
+
+    panel.querySelectorAll("[data-unequip]").forEach(button => {
+      button.onclick = () => unequipItem(button.dataset.unequip);
+    });
+  }
   function createEnemy() {
     const scale = 1 + Math.max(0, state.level - 1) * 0.13;
 
@@ -193,8 +497,7 @@
   function resetBattle(resetAll) {
     if (resetAll) {
       Object.assign(state, freshState());
-      player.attack = 18;
-      player.defense = 5;
+      syncEquipmentStats();
       saveGame(false);
       updateHUD();
     }
@@ -281,7 +584,7 @@ function killEnemy(enemy) {
 
   state.gold += rewardGold;
   gainXP(rewardXP);
-
+rollEquipmentDrop(enemy);
   var effectColor = "#c9a4ff";
 
   if (enemy.rare) {
@@ -875,6 +1178,25 @@ function drawEnemy(enemy) {
 
 
   // 整理角色存檔資料，保留真正的 0 HP 與 0 MP
+
+  // 舊版本存檔相容處理
+  if (!Array.isArray(state.inventory)) {
+    state.inventory = [];
+  }
+
+  if (
+    !state.equippedWeapon ||
+    state.equippedWeapon.type !== "weapon"
+  ) {
+    state.equippedWeapon = null;
+  }
+
+  if (
+    !state.equippedArmor ||
+    state.equippedArmor.type !== "armor"
+  ) {
+    state.equippedArmor = null;
+  }  
   state.level = Math.max(1, Number(state.level) || 1);
   state.xp = Math.max(0, Number(state.xp) || 0);
   state.gold = Math.max(0, Number(state.gold) || 0);
@@ -896,8 +1218,11 @@ function drawEnemy(enemy) {
     maxMP()
   );
 
-  player.attack = 18 + (state.level - 1) * 4;
-  player.defense = 5 + (state.level - 1);
+  // 計算等級與裝備提供的攻擊、防禦
+syncEquipmentStats();
+
+// 建立裝備面板
+createEquipmentUI();
 
   updateHUD();
   draw();
