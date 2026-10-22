@@ -1,122 +1,162 @@
-
+```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101017">
-  <title>試煉之地｜永夜紀元 ECLIPSE ONLINE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090811">
+  <title>永夜紀元 ECLIPSE ONLINE｜荒原試煉</title>
   <link rel="stylesheet" href="game.css">
+  <style>
+    :root {
+      color-scheme: dark;
+      --gold: #e3c17e;
+      --panel: #171321;
+      --muted: #bdb3c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 18px; background: #090811; color: #f7f0ff;
+      font-family: system-ui, "Microsoft JhengHei", sans-serif;
+    }
+    button { cursor: pointer; touch-action: manipulation; }
+    .game-shell { width: min(1100px, 100%); margin: auto; }
+    .game-top { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .game-top h1 { margin:0; color:var(--gold); font-size:clamp(22px,4vw,34px); }
+    .game-top p { margin:3px 0 0; color:var(--muted); font-size:13px; }
+    .game-link { color:var(--gold); text-decoration:none; border:1px solid #756044; padding:9px 13px; border-radius:8px; }
+    .hud { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; margin-bottom:12px; }
+    .hud-card { min-width:0; padding:11px; background:var(--panel); border:1px solid #4a3a58; border-radius:10px; }
+    .hud-card small { display:block; color:var(--muted); font-size:12px; }
+    .hud-card strong { font-size:17px; }
+    .bar { height:8px; background:#342938; border-radius:99px; overflow:hidden; margin-top:7px; }
+    .bar > div { height:100%; width:100%; transition:width .15s; }
+    #hpBar { background:#e65c72; } #mpBar { background:#68a9ff; } #questBar { background:var(--gold); }
+    .arena-wrap { position:relative; overflow:hidden; border:1px solid #786045; border-radius:12px; background:#171321; }
+    #arena { display:block; width:100%; height:auto; aspect-ratio: 900 / 480; }
+    #arenaMessage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:20px; text-align:center; background:#090811b8; backdrop-filter:blur(4px); }
+    #arenaMessage.hidden { display:none; }
+    #arenaMessage strong { color:var(--gold); font-size:clamp(22px,4vw,34px); }
+    #arenaMessage span { color:#eee4f6; }
+    .primary-button, .action-button { border:1px solid #a98a53; border-radius:9px; padding:11px 16px; color:#130f19; background:linear-gradient(135deg,#f3d99a,#c49b52); font-weight:800; }
+    .action-button { color:#f5e9ff; background:#292136; border-color:#645176; }
+    .action-button:active, .primary-button:active { transform:scale(.97); }
+    .game-controls { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+    .control-panel { padding:12px; background:var(--panel); border:1px solid #4a3a58; border-radius:10px; }
+    .control-panel h2 { margin:0 0 10px; color:var(--gold); font-size:15px; }
+    .dpad { display:grid; grid-template-columns:repeat(3,52px); grid-template-rows:repeat(2,44px); gap:6px; justify-content:center; }
+    .dpad button { border:1px solid #645176; border-radius:8px; background:#292136; color:white; font-size:19px; }
+    .dpad [data-move="up"] { grid-column:2; grid-row:1; }
+    .dpad [data-move="left"] { grid-column:1; grid-row:2; }
+    .dpad [data-move="down"] { grid-column:2; grid-row:2; }
+    .dpad [data-move="right"] { grid-column:3; grid-row:2; }
+    .action-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .action-grid button { min-height:43px; }
+    .status-row { display:flex; flex-wrap:wrap; gap:12px; color:var(--muted); font-size:13px; margin:12px 0; }
+    .quest-panel, .equipment-panel, .log-panel { margin-top:12px; padding:14px; background:var(--panel); border:1px solid #4a3a58; border-radius:10px; }
+    .quest-panel h2, .equipment-panel h2, .log-panel h2 { margin:0 0 8px; color:var(--gold); font-size:16px; }
+    #battleLog { max-height:170px; overflow:auto; margin:0; padding-left:20px; color:#d9cfe5; font-size:13px; }
+    #battleLog li { margin:4px 0; }
+    #toast { position:fixed; z-index:20; left:50%; bottom:18px; transform:translate(-50%,20px); opacity:0; pointer-events:none; padding:10px 16px; border:1px solid #a98a53; border-radius:9px; background:#181320; color:#f7dfa2; transition:.2s; max-width:90vw; text-align:center; }
+    #toast.visible { opacity:1; transform:translate(-50%,0); }
+    .equipment-slots, #equipmentInventory { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .equipment-item, .equipment-slot { min-width:0; padding:10px; border:1px solid #4b3e59; border-radius:8px; overflow-wrap:anywhere; }
+    .equipment-item button, .equipment-slot button { margin-top:7px; padding:7px 10px; border:1px solid #786045; border-radius:7px; background:#2a2034; color:#f7e9ff; }
+    .equipment-name { color:var(--gold); font-weight:700; }
+    .muted { color:var(--muted); font-size:13px; }
+    .bottom-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    @media(max-width:650px) {
+      body { padding:10px; }
+      .hud { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .game-controls { grid-template-columns:1fr; }
+      .equipment-slots, #equipmentInventory { grid-template-columns:1fr; }
+      .hud-card { padding:9px; }
+    }
+  </style>
 </head>
 <body>
-  <header class="game-header">
-    <a class="brand" href="index.html">☾ 永夜紀元</a>
-    <span class="chapter">第一章・試煉之地</span>
-    <a class="back-link" href="index.html">返回主首頁 ↗</a>
-  </header>
-
-  <main class="game-layout">
-    <section class="game-main">
-      <div class="game-heading">
-        <div>
-          <p class="eyebrow">ECLIPSE ONLINE</p>
-          <h1>被遺忘的荒原</h1>
-          <p class="subheading">擊敗魔物，踏出成為傳奇的第一步。</p>
-        </div>
-        <div class="level-chip">LV. <span id="level">1</span></div>
+  <main class="game-shell">
+    <header class="game-top">
+      <div>
+        <h1>永夜紀元 <span style="font-size:.55em;letter-spacing:2px">ECLIPSE ONLINE</span></h1>
+        <p>荒原試煉｜即時戰鬥 RPG</p>
       </div>
+      <a class="game-link" href="index.html">返回官方網站</a>
+    </header>
 
-      <div class="arena-wrap">
-        <canvas id="arena" width="960" height="540"
-          aria-label="即時戰鬥區域"></canvas>
-        <div class="arena-message" id="arenaMessage">
-          <strong>試煉即將開始</strong>
-          <span>使用方向鍵移動，靠近魔物發動攻擊。</span>
-          <button id="startButton" class="primary-button">進入戰場</button>
-        </div>
-        <div class="arena-topline">
-          <span>荒原・第 1 區</span>
-          <span id="enemyCounter">魔物：0</span>
-        </div>
-        <div class="arena-toast" id="toast" role="status"></div>
-      </div>
+    <section class="hud" aria-label="角色狀態">
+      <div class="hud-card"><small>角色等級</small><strong>LV. <span id="level">1</span></strong><div class="muted">經驗 <span id="xpText">0 / 100</span></div></div>
+      <div class="hud-card"><small>生命值 HP</small><strong id="hpText">120 / 120</strong><div class="bar"><div id="hpBar"></div></div></div>
+      <div class="hud-card"><small>魔力值 MP</small><strong id="mpText">40 / 40</strong><div class="bar"><div id="mpBar"></div></div></div>
+      <div class="hud-card"><small>戰鬥數值</small><strong>⚔ <span id="attackStat">18</span>　🛡 <span id="defenseStat">5</span></strong><div class="muted">金幣：<span id="goldText">0</span></div></div>
+    </section>
 
-      <div class="combat-controls">
-        <button class="action-button" id="attackButton">
-          <span class="action-key">J</span><span>普通攻擊</span>
-        </button>
-        <button class="action-button skill-action" id="skillButton">
-          <span class="action-key">K</span><span>裂地斬</span>
-          <small id="skillCooldown">可使用</small>
-        </button>
-        <button class="action-button dodge-action" id="dodgeButton">
-          <span class="action-key">Shift</span><span>閃避</span>
-        </button>
-        <button class="action-button potion-action" id="potionButton">
-          <span class="action-key">H</span><span>生命藥水</span>
-          <small>×<span id="potionCount">3</span></small>
-        </button>
-      </div>
-      <p class="control-hint">電腦：WASD／方向鍵移動，J 攻擊，K 技能，Shift 閃避，H 喝藥水。手機：使用下方方向鍵與動作按鈕。</p>
-
-      <div class="mobile-controls">
-        <div class="dpad">
-          <button data-move="up" aria-label="向上">▲</button>
-          <button data-move="left" aria-label="向左">◀</button>
-          <button data-move="down" aria-label="向下">▼</button>
-          <button data-move="right" aria-label="向右">▶</button>
-        </div>
-        <p>移動</p>
+    <section class="arena-wrap">
+      <canvas id="arena" width="900" height="480" aria-label="荒原戰鬥畫面"></canvas>
+      <div id="arenaMessage">
+        <strong>永夜荒原</strong>
+        <span>握緊武器，迎戰黑暗中的魔物。</span>
+        <button id="startButton" class="primary-button" type="button">進入戰場</button>
       </div>
     </section>
 
-    <aside class="side-panel">
-      <section class="panel character-panel">
-        <p class="panel-label">冒險者資料</p>
-        <div class="character-profile">
-          <img src="assets/images/knight.jpg" alt="騎士角色">
-          <div><h2>暗影騎士</h2><p>近戰職業・守護者</p></div>
-        </div>
-        <div class="stat-row"><span>生命值 HP</span><strong id="hpText">120 / 120</strong></div>
-        <div class="bar"><span id="hpBar" class="hp-bar"></span></div>
-        <div class="stat-row"><span>魔力 MP</span><strong id="mpText">40 / 40</strong></div>
-        <div class="bar"><span id="mpBar" class="mp-bar"></span></div>
-        <div class="stat-grid">
-          <div><span>攻擊力</span><strong id="attackStat">18</strong></div>
-          <div><span>防禦力</span><strong id="defenseStat">5</strong></div>
-          <div><span>經驗值</span><strong id="xpText">0 / 100</strong></div>
-          <div><span>金幣</span><strong id="goldText">0</strong></div>
-        </div>
-      </section>
+    <div class="status-row">
+      <span id="enemyCounter">魔物：0</span>
+      <span>技能冷卻：<b id="skillCooldown">可使用</b></span>
+      <span>生命藥水：<b id="potionCount">3</b></span>
+      <span id="saveStatus">尚未儲存</span>
+    </div>
 
-      <section class="panel">
-        <div class="panel-title-row"><p class="panel-label">當前任務</p><span class="quest-mark">主線</span></div>
-        <h3>荒原清剿</h3>
-        <p class="quest-description">擊敗 5 隻荒原魔物，證明你的實力。</p>
-        <div class="quest-progress"><span id="questBar"></span></div>
-        <p class="quest-count" id="questText">擊敗魔物：0 / 5</p>
-        <p id="questReward" class="quest-reward">獎勵：80 EXP、50 金幣</p>
-      </section>
-
-      <section class="panel">
-        <div class="panel-title-row">
-          <p class="panel-label">戰鬥紀錄</p>
-          <button id="clearLog" class="text-button">清除</button>
+    <section class="game-controls">
+      <div class="control-panel">
+        <h2>移動控制（也可使用鍵盤 WASD／方向鍵）</h2>
+        <div class="dpad">
+          <button type="button" data-move="up" aria-label="向上">▲</button>
+          <button type="button" data-move="left" aria-label="向左">◀</button>
+          <button type="button" data-move="down" aria-label="向下">▼</button>
+          <button type="button" data-move="right" aria-label="向右">▶</button>
         </div>
-        <div id="battleLog" class="battle-log" aria-live="polite">
-          <p>旅程即將開始……</p>
+      </div>
+      <div class="control-panel">
+        <h2>戰鬥操作（鍵盤 J 攻擊、K 技能、Shift 閃避、H 藥水）</h2>
+        <div class="action-grid">
+          <button class="action-button" id="attackButton" type="button">⚔ 普通攻擊</button>
+          <button class="action-button" id="skillButton" type="button">✦ 裂地斬</button>
+          <button class="action-button" id="dodgeButton" type="button">💨 閃避</button>
+          <button class="action-button" id="potionButton" type="button">🧪 使用藥水</button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="panel save-panel">
-        <div><strong>冒險進度</strong><p id="saveStatus">本機存檔已啟用</p></div>
-        <button id="saveButton" class="secondary-button">儲存進度</button>
-        <button id="resetButton" class="text-button danger-text">重新開始</button>
-      </section>
-    </aside>
+    <section class="quest-panel">
+      <h2>主線任務｜荒原清剿</h2>
+      <div id="questText">擊敗魔物：0 / 5</div>
+      <div class="bar"><div id="questBar"></div></div>
+    </section>
+
+    <section class="equipment-panel">
+      <h2>⚔ 裝備與背包</h2>
+      <div class="equipment-slots">
+        <div class="equipment-slot"><strong>武器</strong><div id="equippedWeaponView" class="muted">尚未裝備</div></div>
+        <div class="equipment-slot"><strong>防具</strong><div id="equippedArmorView" class="muted">尚未裝備</div></div>
+      </div>
+      <h3>背包裝備</h3>
+      <div id="equipmentInventory"><p class="muted">背包目前沒有裝備。</p></div>
+    </section>
+
+    <section class="log-panel">
+      <h2>戰鬥紀錄</h2>
+      <ol id="battleLog"></ol>
+      <div class="bottom-actions">
+        <button id="saveButton" class="action-button" type="button">儲存進度</button>
+        <button id="clearLog" class="action-button" type="button">清除紀錄</button>
+        <button id="resetButton" class="action-button" type="button">重置角色進度</button>
+      </div>
+    </section>
   </main>
 
-  <footer class="game-footer">ECLIPSE ONLINE · 永夜紀元 — 試煉版本</footer>
+  <div id="toast" role="status" aria-live="polite"></div>
   <script src="game.js"></script>
 </body>
 </html>
+```
